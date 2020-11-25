@@ -16,7 +16,7 @@ Mainly for use with Puhti
 
 | script                                         | module               | partition | date       | result |
 | ---------------------------------------------- | -------------------- | --------- | ---------- |--------|
-| pytorch-resnet50-gpu1.sh                       | pytorch/1.6          |           | 2020-11-25 | 0.189  |
-| pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2020-11-25 | 0.105  |
-| pytorch-resnet50-gpu4.sh                       |                      |           | 2020-11-25 | 0.202  |
-| pytorch-resnet50-gpu4-amp.sh                   |                      |           | 2020-11-25 | 0.109  |
+| pytorch-resnet50-gpu1.sh                       | pytorch/1.6          | gputest   | 2020-11-25 | 0.189  |
+| pytorch-resnet50-gpu1-amp.sh                   | -"-                  | -"-       | 2020-11-25 | 0.105  |
+| pytorch-resnet50-gpu4.sh                       | -"-                  | -"-       | 2020-11-25 | 0.202  |
+| pytorch-resnet50-gpu4-amp.sh                   | -"-                  | -"-       | 2020-11-25 | 0.109  |
