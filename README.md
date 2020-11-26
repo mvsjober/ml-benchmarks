@@ -32,17 +32,21 @@ sbatch <script name>
 | pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2020-11-25 | 0.105    |
 | pytorch-resnet50-gpu4.sh                       |                      |           | 2020-11-25 | 0.202    |
 | pytorch-resnet50-gpu4-amp.sh                   |                      |           | 2020-11-25 | 0.109    |
-| pytorch-resnet50-gpu1.sh                       | nvidia-20.08-py3     | gputest   |            | ERROR    |
-| pytorch-resnet50-gpu1-amp.sh                   |                      |           |            |          |
-| pytorch-resnet50-gpu4.sh                       |                      |           |            |          |
-| pytorch-resnet50-gpu4-amp.sh                   |                      |           |            |          |
+| pytorch-resnet50-gpu1.sh                       | nvidia-20.11-py3     | gputest   | 2020-11-26 | 0.186    |
+| pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2020-11-26 | 0.099    |
+| pytorch-resnet50-gpu4.sh                       |                      |           | 2020-11-26 | 0.199    |
+| pytorch-resnet50-gpu4-amp.sh                   |                      |           | 2020-11-26 | 0.105    |
+| pytorch-resnet50-gpu1.sh                       | nvidia-20.08-py3     | gputest   | 2020-11-26 | 0.183    |
+| pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2020-11-26 | 0.096    |
+| pytorch-resnet50-gpu4.sh                       |                      |           | 2020-11-26 | 0.196    |
+| pytorch-resnet50-gpu4-amp.sh                   |                      |           | 2020-11-26 | 0.103    |
 
 
 ## PyTorch Horovod
 
 | script                                         | module               | partition | date       | result   |
 | ---------------------------------------------- | -------------------- | --------- | ---------- | -------- |
-| pytorch-horovod-synthetic-gpu4.sh              | nvidia-20.08-py3     | gputest   | 2020-11-25 | ERROR    |
-| pytorch-horovod-synthetic-gpu8.sh              |                      |           |            |          |
+| pytorch-horovod-synthetic-gpu4.sh              | nvidia-20.08-py3     | gputest   | 2020-11-26 | 1050.5   |
+| pytorch-horovod-synthetic-gpu8.sh              |                      |           | 2020-11-26 | ...      |
 | pytorch-horovod-imagenet-gpu4.sh               |                      |           |            |          |
 | pytorch-horovod-imagenet-gpu8.sh               |                      |           |            |          |
