@@ -18,7 +18,6 @@ sbatch <script name>
 | tensorflow-horovod-inception3-gpu8.sh          |                      |           | 2020-11-26 | 3381.94   |
 | tensorflow-horovod-inception3-imagenet-gpu4.sh |                      |           | 2020-11-26 | 1695.27   |
 | tensorflow-horovod-inception3-imagenet-gpu8.sh |                      |           | 2020-11-26 | 3214.84   |
-| ---------------------------------------------- | -------------------- | --------- | ---------- | --------- |
 | tensorflow-horovod-inception3-gpu4.sh          | nvidia-20.07-tf2-py3 | gputest   | 2020-11-23 | 1928.56   |
 | tensorflow-horovod-inception3-gpu8.sh          |                      |           | 2020-11-23 | 3597.21   |
 | tensorflow-horovod-inception3-imagenet-gpu4.sh |                      |           | 2020-11-23 | 1837.63   |
@@ -33,7 +32,6 @@ sbatch <script name>
 | pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2020-11-25 | 0.105    |
 | pytorch-resnet50-gpu4.sh                       |                      |           | 2020-11-25 | 0.202    |
 | pytorch-resnet50-gpu4-amp.sh                   |                      |           | 2020-11-25 | 0.109    |
-| ---------------------------------------------- | -------------------- | --------- | ---------- | -------- |
 | pytorch-resnet50-gpu1.sh                       | nvidia-20.08-py3     | gputest   |            | ERROR    |
 | pytorch-resnet50-gpu1-amp.sh                   |                      |           |            |          |
 | pytorch-resnet50-gpu4.sh                       |                      |           |            |          |
