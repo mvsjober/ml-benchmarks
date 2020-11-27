@@ -2,6 +2,16 @@
 
 Mainly for use with Puhti
 
+## Setup
+
+Clone this repository:
+
+```bash
+git clone --recursive https://gitlab.ci.csc.fi/msjoberg/ml-benchmarks.git
+```
+
+If you forget the `--recursive` flag you can always fetch the submodules manually: `git submodule init; git submodule update`.
+
 ## Usage
 
 ```bash
@@ -47,6 +57,6 @@ sbatch <script name>
 | script                                         | module               | partition | date       | result   |
 | ---------------------------------------------- | -------------------- | --------- | ---------- | -------- |
 | pytorch-horovod-synthetic-gpu4.sh              | nvidia-20.08-py3     | gputest   | 2020-11-26 | 1050.5   |
-| pytorch-horovod-synthetic-gpu8.sh              |                      |           | 2020-11-26 | ...      |
-| pytorch-horovod-imagenet-gpu4.sh               |                      |           |            |          |
-| pytorch-horovod-imagenet-gpu8.sh               |                      |           |            |          |
+| pytorch-horovod-synthetic-gpu8.sh              |                      |           | 2020-11-26 | 2096.5   |
+| pytorch-horovod-imagenet-gpu4.sh               |                      |           | 2020-11-27 | 5.05it/s |
+| pytorch-horovod-imagenet-gpu8.sh               |                      |           | 2020-11-27 | 5.05it/s |
