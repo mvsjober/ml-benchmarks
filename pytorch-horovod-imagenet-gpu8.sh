@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --nodes=2 --ntasks=8 --cpus-per-task=10 -p gputest --gres=gpu:v100:4 -t 15 --mem=32G
+#SBATCH --nodes=2 --ntasks=8 --cpus-per-task=10 -p gputest --gres=gpu:v100:4,nvme:50 -t 15 --mem=32G
 #SBATCH -A project_2001659
 #SBATCH --output=logs/slurm-%x-%j.out
 
@@ -27,5 +27,5 @@ $PYTHON -c "import sys; import torch; print(sys.version, '\nPyTorch:', torch.__v
 srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 \
      tar xf $DATASET_TAR_ARCHIVE --strip 1 -C $LOCAL_SCRATCH/
 
-srun $PYTHON $MAIN_PY --train-dir=${DATADIR}/train --val-dir=${DATADIR}/val
+srun $PYTHON $MAIN_PY --train-dir=${DATADIR}/train --val-dir=${DATADIR}/val --epochs=1
 date

@@ -26,5 +26,5 @@ $PYTHON -c "import sys; import torch; print(sys.version, '\nPyTorch:', torch.__v
 
 tar xf $DATASET_TAR_ARCHIVE --strip 1 -C $LOCAL_SCRATCH/
 
-srun $PYTHON $MAIN_PY --train-dir=${DATADIR}/train --val-dir=${DATADIR}/val
+srun $PYTHON $MAIN_PY --train-dir=${DATADIR}/train --val-dir=${DATADIR}/val --epochs=1
 date
