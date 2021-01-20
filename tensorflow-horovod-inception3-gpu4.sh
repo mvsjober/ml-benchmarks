@@ -9,7 +9,7 @@ if [ -n "$SING_IMAGE" ]; then
     echo "Using Singularity image $SING_IMAGE"
 fi
 
-MAIN_PY=tensorflow-benchmarks-v2.1_compatible/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
+MAIN_PY=tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
 
 module list
 

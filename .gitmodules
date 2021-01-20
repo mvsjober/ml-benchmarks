@@ -1,7 +1,6 @@
-[submodule "tensorflow-benchmarks-v2.1_compatible"]
-	path = tensorflow-benchmarks-v2.1_compatible
-	url = https://github.com/tensorflow/benchmarks
-	branch = cnn_tf_v2.1_compatible
 [submodule "horovod"]
 	path = horovod
 	url = https://github.com/horovod/horovod
+[submodule "tensorflow-benchmarks"]
+	path = tensorflow-benchmarks
+	url = https://github.com/tensorflow/benchmarks
