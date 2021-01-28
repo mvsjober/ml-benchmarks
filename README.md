@@ -39,6 +39,10 @@ sbatch <script name>
 
 | script                                         | module               | partition | date       | result   |
 | ---------------------------------------------- | -------------------- | --------- | ---------- | -------- |
+| pytorch-resnet50-gpu1.sh                       | 1.7.1-sng            | gputest   | 2021-01-28 | 0.181    |
+| pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2021-01-28 | 0.099    |
+| pytorch-resnet50-gpu4.sh                       |                      |           | 2021-01-28 | 0.196    |
+| pytorch-resnet50-gpu4-amp.sh                   |                      |           | 2021-01-28 | 0.104    |
 | pytorch-resnet50-gpu1.sh                       | 1.6                  | gputest   | 2020-11-25 | 0.189    |
 | pytorch-resnet50-gpu1-amp.sh                   |                      |           | 2020-11-25 | 0.105    |
 | pytorch-resnet50-gpu4.sh                       |                      |           | 2020-11-25 | 0.202    |
@@ -60,6 +64,10 @@ sbatch <script name>
 
 | script                                         | module               | partition | date       | result        |
 | ---------------------------------------------- | -------------------- | --------- | ---------- | --------      |
+| pytorch-horovod-synthetic-gpu4.sh              | 1.7.1-sng            | gputest   | 2021-01-28 | 1368.5        |
+| pytorch-horovod-synthetic-gpu8.sh              |                      |           | 2021-01-28 | 2728.5        |
+| pytorch-horovod-imagenet-gpu4.sh               |                      |           | 2021-01-28 | 8.67it/s      |
+| pytorch-horovod-imagenet-gpu8.sh               |                      |           | 2021-01-28 | 8.29it/s      |
 | pytorch-horovod-synthetic-gpu4.sh              | nvidia-20.11-py3     | gputest   | 2020-11-27 | 1032.5        |
 | pytorch-horovod-synthetic-gpu8.sh              |                      |           | 2020-11-27 | **MPI error** |
 | pytorch-horovod-imagenet-gpu4.sh               |                      |           | 2020-11-27 | 4.72it/s      |
