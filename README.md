@@ -35,6 +35,13 @@ sbatch <script name>
 | tensorflow-horovod-inception3-imagenet-gpu8.sh |                      | gpu       | 2020-11-27 | 3419.12   |
   
 
+## PyTorch Synthetic
+
+| script                                         | module               | partition | date       | result   |
+| ---------------------------------------------- | -------------------- | --------- | ---------- | -------- |
+| pytorch-synthetic-gpu1.sh                      | 1.7                  | gputest   | 2021-02-18 | 343.3    |
+
+
 ## PyTorch ResNet
 
 | script                                         | module               | partition | date       | result   |
