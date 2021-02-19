@@ -36,7 +36,13 @@ args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 cudnn.benchmark = True
 
+
+def log(s, nl=True):
+    print(s, end='\n' if nl else '', flush=True)
+
+
 # Set up standard model.
+log('Initializing %s model...' % args.model)
 model = getattr(models, args.model)()
 
 if args.cuda:
@@ -46,6 +52,7 @@ if args.cuda:
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 # Set up fixed fake data
+log('Set up fixed fake data...')
 data = torch.randn(args.batch_size, 3, 224, 224)
 target = torch.LongTensor(args.batch_size).random_() % 1000
 if args.cuda:
@@ -58,10 +65,6 @@ def benchmark_step():
     loss = F.cross_entropy(output, target)
     loss.backward()
     optimizer.step()
-
-
-def log(s, nl=True):
-    print(s, end='\n' if nl else '')
 
 
 log('Model: %s' % args.model)
@@ -83,5 +86,4 @@ for x in range(args.num_iters):
 # Results
 img_sec_mean = np.mean(img_secs)
 img_sec_conf = 1.96 * np.std(img_secs)
-log('Img/sec: %.1f +-%.1f' % (img_sec_mean, img_sec_conf))
 log('Total img/sec %.1f +-%.1f' % (img_sec_mean, img_sec_conf))
