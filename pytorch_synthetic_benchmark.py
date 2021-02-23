@@ -1,17 +1,20 @@
 import argparse
+import torch
 import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 import torch.optim as optim
 import torch.utils.data.distributed
+from torch.utils import mkldnn as mkldnn_utils
 from torchvision import models
+
 import timeit
 import numpy as np
 
 # Benchmark settings
 parser = argparse.ArgumentParser(description='PyTorch Synthetic Benchmark',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('--fp16-allreduce', action='store_true', default=False,
-                    help='use fp16 compression during allreduce')
+parser.add_argument('--fp16', action='store_true', default=False,
+                    help='enable mixed precision')
 
 parser.add_argument('--model', type=str, default='resnet50',
                     help='model to benchmark')
@@ -28,12 +31,31 @@ parser.add_argument('--num-iters', type=int, default=10,
 parser.add_argument('--no-cuda', action='store_true', default=False,
                     help='disables CUDA training')
 
-parser.add_argument('--use-adasum', action='store_true', default=False,
-                    help='use adasum algorithm to do reduction')
+parser.add_argument('--ipex', action='store_true', default=False,
+                    help='Enable Intel extension for PyTorch: '
+                    'https://github.com/intel/intel-extension-for-pytorch')
+
+parser.add_argument('--mkldnn', action='store_true', default=False,
+                    help='use tensor in _mkldnn layout')
 
 args = parser.parse_args()
-args.cuda = not args.no_cuda and torch.cuda.is_available()
 
+if args.ipex:
+    import intel_pytorch_extension as ipex
+    if args.fp16:
+        ipex.enable_auto_mixed_precision(mixed_dtype = torch.bfloat16)
+
+
+if not args.no_cuda and torch.cuda.is_available():
+    device = torch.device('cuda')
+elif args.ipex:
+    device = ipex.DEVICE
+else:
+    device = torch.device('cpu')
+
+print('Using PyTorch version:', torch.__version__, 'Device:', device)
+print(*torch.__config__.show().split('\n'), sep='\n')
+    
 cudnn.benchmark = True
 
 
@@ -44,25 +66,38 @@ def log(s, nl=True):
 # Set up standard model.
 log('Initializing %s model...' % args.model)
 model = getattr(models, args.model)()
+model = model.to(device)
 
-if args.cuda:
-    # Move model to GPU.
-    model.cuda()
+if args.mkldnn:
+    model = mkldnn_utils.to_mkldnn(model)
 
 optimizer = optim.SGD(model.parameters(), lr=0.01)
 
 # Set up fixed fake data
 log('Set up fixed fake data...')
-data = torch.randn(args.batch_size, 3, 224, 224)
+imsize = 224
+if args.model == 'inception_v3':
+    imsize = 299
+
+data = torch.randn(args.batch_size, 3, imsize, imsize)
 target = torch.LongTensor(args.batch_size).random_() % 1000
-if args.cuda:
-    data, target = data.cuda(), target.cuda()
+
+if args.mkldnn:
+    data = data.to_mkldnn()
+
+data = data.to(device)
+target = target.to(device)
 
 
 def benchmark_step():
     optimizer.zero_grad()
     output = model(data)
-    loss = F.cross_entropy(output, target)
+    if args.mkldnn:
+        output = output.to_dense()
+    if args.model == 'inception_v3':
+        loss = F.cross_entropy(output.logits, target)
+    else:
+        loss = F.cross_entropy(output, target)
     loss.backward()
     optimizer.step()
 
