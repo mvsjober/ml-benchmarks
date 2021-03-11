@@ -12,19 +12,19 @@ import timeit
 import numpy as np
 
 
-class RandomData(Dataset):
-    def __init__(self, imsize, batch_size, batches_per_iter):
-        self.imsize = imsize
-        self.batch_size = batch_size
-        self.batches_per_iter = batches_per_iter
+# class RandomData(Dataset):
+#     def __init__(self, imsize, batch_size, batches_per_iter):
+#         self.imsize = imsize
+#         self.batch_size = batch_size
+#         self.batches_per_iter = batches_per_iter
 
-    def __len__(self):
-        return self.batch_size * self.batches_per_iter
+#     def __len__(self):
+#         return self.batch_size * self.batches_per_iter
 
-    def __getitem__(self, index):
-        data = torch.randn(3, self.imsize, self.imsize)
-        target = torch.randint(0, 1000, ())
-        return data, target
+#     def __getitem__(self, index):
+#         data = torch.randn(3, self.imsize, self.imsize)
+#         target = torch.randint(0, 1000, ())
+#         return data, target
 
 
 def log(s, nl=True):
@@ -37,8 +37,11 @@ def main(args):
         if args.fp16:
             ipex.enable_auto_mixed_precision(mixed_dtype=torch.bfloat16)
 
+    use_amp = False
     if not args.no_cuda and torch.cuda.is_available():
         device = torch.device('cuda')
+        if args.fp16:
+            use_amp = True
     elif args.ipex:
         device = ipex.DEVICE
     else:
@@ -58,17 +61,20 @@ def main(args):
         model = mkldnn_utils.to_mkldnn(model)
 
     optimizer = optim.SGD(model.parameters(), lr=0.01)
+    scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
 
     imsize = 224
     if args.model == 'inception_v3':
         imsize = 299
-    dataset = RandomData(imsize, args.batch_size, args.num_batches_per_iter)
-    loader = DataLoader(dataset, batch_size=args.batch_size,
-                        num_workers=args.num_workers,
-                        persistent_workers=args.num_workers > 0)
+    # dataset = RandomData(imsize, args.batch_size, args.num_batches_per_iter)
+    # loader = DataLoader(dataset, batch_size=args.batch_size,
+    #                     num_workers=args.num_workers,
+    #                     persistent_workers=args.num_workers > 0)
 
     def benchmark_step():
-        data, target = next(iter(loader))
+        #data, target = next(iter(loader))
+        data = torch.randn(args.batch_size, 3, imsize, imsize)
+        target = torch.LongTensor(args.batch_size).random_() % 1000
 
         if args.mkldnn:
             data = data.to_mkldnn()
@@ -77,15 +83,17 @@ def main(args):
         target = target.to(device)
 
         optimizer.zero_grad()
-        output = model(data)
-        if args.mkldnn:
-            output = output.to_dense()
-        if args.model == 'inception_v3':
-            loss = F.cross_entropy(output.logits, target)
-        else:
-            loss = F.cross_entropy(output, target)
-        loss.backward()
-        optimizer.step()
+        with torch.cuda.amp.autocast(enabled=use_amp):
+            output = model(data)
+            if args.mkldnn:
+                output = output.to_dense()
+            if args.model == 'inception_v3':
+                loss = F.cross_entropy(output.logits, target)
+            else:
+                loss = F.cross_entropy(output, target)
+        scaler.scale(loss).backward()
+        scaler.step(optimizer)
+        scaler.update()
 
     log('Model: %s' % args.model)
     log('Batch size: %d' % args.batch_size)
