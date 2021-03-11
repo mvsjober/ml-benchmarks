@@ -3,16 +3,10 @@
 #SBATCH -A project_2001659
 #SBATCH --output=logs/slurm-%x-%j.out
 
-PYTHON=python3
-if [ -n "$SING_IMAGE" ]; then
-    PYTHON="singularity_wrapper exec python3"
-    echo "Using Singularity image $SING_IMAGE"
-fi
-
 MAIN_PY=horovod/examples/pytorch/pytorch_synthetic_benchmark.py
 
 module list
-export NCCL_DEBUG=INFO
+#export NCCL_DEBUG=INFO
 
 set -x
 
@@ -20,7 +14,5 @@ date
 hostname
 nvidia-smi
 
-$PYTHON -c "import sys; import torch; print(sys.version, '\nPyTorch:', torch.__version__)"
-
-srun $PYTHON $MAIN_PY --num-iters=100 --batch-size=64
+srun python3 $MAIN_PY --num-iters=100 --batch-size=64
 date
