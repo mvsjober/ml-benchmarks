@@ -56,6 +56,9 @@ def main(args):
     log('Initializing %s model...' % args.model)
     model = getattr(models, args.model)()
     model = model.to(device)
+    if args.multi_gpu and torch.cuda.device_count() > 1:
+        model = torch.nn.DataParallel(model)
+        print('Using {} GPUs with '.format(torch.cuda.device_count()))
 
     if args.mkldnn:
         model = mkldnn_utils.to_mkldnn(model)
@@ -138,6 +141,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--no-cuda', action='store_true', default=False,
                         help='disables CUDA training')
+    parser.add_argument('--multi-gpu', action='store_true', default=False,
+                        help='use multiple GPUs if available')
 
     parser.add_argument('--ipex', action='store_true', default=False,
                         help='Enable Intel extension for PyTorch: '
