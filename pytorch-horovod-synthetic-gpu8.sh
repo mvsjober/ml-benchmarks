@@ -3,11 +3,9 @@
 #SBATCH -A project_2001659
 #SBATCH --output=logs/slurm-%x-%j.out
 
-MAIN_PY=horovod/examples/pytorch/pytorch_synthetic_benchmark.py
-
 module list
-#export NCCL_DEBUG=INFO
-#export UCX_LOG_LEVEL=debug
+export NCCL_DEBUG=INFO
+export UCX_LOG_LEVEL=debug
 
 set -x
 
@@ -15,5 +13,5 @@ date
 hostname
 nvidia-smi
 
-srun python3 $MAIN_PY --num-iters=100 --batch-size=64
+srun python3 pytorch_synthetic_horovod_benchmark.py --num-iters=100 --batch-size=64
 date
