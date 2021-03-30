@@ -4,8 +4,8 @@
 #SBATCH --output=logs/slurm-%x-%j.out
 
 module list
-export NCCL_DEBUG=INFO
-export UCX_LOG_LEVEL=debug
+#export NCCL_DEBUG=INFO
+#export UCX_LOG_LEVEL=debug
 
 set -x
 
