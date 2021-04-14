@@ -23,7 +23,10 @@ export OMP_SCHEDULE=STATIC
 export OMP_PROC_BIND=CLOSE
 export GOMP_CPU_AFFINITY="0-127"
 
-# bs=32, nodes=2, 6.5 img/sec
+# bs=32,   nodes=2, 6.6 img/sec → 13.1 on 2 nodes
+# bs=64,   nodes=2, 8.5 img/sec → 17.0
+# bs=256,  nodes=2, 15.9 img/sec → 31.8
+# bs=1024, nodes=2, job id 407174
 
 srun python3 pytorch_synthetic_horovod_benchmark.py --num-iters=10 --no-cuda $*
 date
