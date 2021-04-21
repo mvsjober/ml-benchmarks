@@ -11,6 +11,7 @@ import horovod.torch as hvd
 import os
 import math
 from tqdm import tqdm
+from datetime import datetime
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Example',
@@ -62,7 +63,9 @@ def train(epoch):
     train_loss = Metric('train_loss')
     train_accuracy = Metric('train_accuracy')
 
-    with tqdm(total=len(train_loader),
+    now = datetime.now()
+    total_size = len(train_loader)
+    with tqdm(total=total_size,
               desc='Train Epoch     #{}'.format(epoch + 1),
               disable=not verbose) as t:
         for batch_idx, (data, target) in enumerate(train_loader):
@@ -87,7 +90,14 @@ def train(epoch):
             t.set_postfix({'loss': train_loss.avg.item(),
                            'accuracy': 100. * train_accuracy.avg.item()})
             t.update(1)
-
+    epoch_time = datetime.now()-now
+            
+    if hvd.rank() == 0:
+        tot_images = len(train_loader) * args.batch_size * hvd.size()
+        print('Epoch duration:', epoch_time)
+        print('Images:', tot_images)
+        print('Images/sec:', tot_images / epoch_time.total_seconds())
+            
     if log_writer:
         log_writer.add_scalar('train/loss', train_loss.avg, epoch)
         log_writer.add_scalar('train/accuracy', train_accuracy.avg, epoch)
