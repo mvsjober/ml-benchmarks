@@ -28,10 +28,20 @@ TYPE one of:
 - `gpu8`, `gpu16`, `gpu24`: 8, 16 or 24 GPUs (i.e, 2, 4 or 6 nodes) with one MPI
   task per GPU (for Horovod)
 
-For example to run one of the commands below on a single GPU on Puhti:
+For example to run a PyTorch script on a single GPU on Puhti:
 
 ```bash
-sbatch run-gpu1-puhti.sh python3 pytorch_synthetic_benchmark.py --num-iters=100 --batch-size=64
+module purge
+module load pytorch/1.8
+sbatch slurm/run-gpu1-puhti.sh python3 my_pytorch_script.py
+```
+
+The scripts also support extracting a tar-file to the NVME local drive by
+setting the `$DATA_TAR` environment variable:
+
+```bash
+DATA_TAR=/scratch/dac/data/ilsvrc2012-tf.tar \
+sbatch slurm/run-gpu8-puhti.sh my_pytorch_script.py --data_dir /run/nvme/*/data/
 ```
 
 ## PyTorch synthetic benchmark
@@ -43,17 +53,52 @@ network again and again. Some systems and setups are able to optimize this
 scenario giving very unrealistic results. We have modified the script to
 generate a new random batch each time.
 
+Runs with "resnet50" model by default, but also supports "inception_v3" and
+other [models from torchvision.models][2].
+
 [1]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_synthetic_benchmark.py
+[2]: https://pytorch.org/vision/stable/models.html
 
 Run example:
 
 ```bash
-python3 pytorch_synthetic_benchmark.py --num-iters=100 --batch-size=64
+sbatch slurm/run-gpu1-mahti.sh pytorch_synthetic_benchmark.py --num-iters=100 --batch-size=64
 ```
 
-Horovod version:
+Using Horovod:
 
 ```bash
-python3 pytorch_synthetic_horovod_benchmark.py --num-iters=100 --batch-size=64
+sbatch slurm/run-gpu8-mahti.sh pytorch_synthetic_horovod_benchmark.py --num-iters=100 --batch-size=64
 ```
 
+## TensorFlow CNN benchmark
+
+Uses [`tf_cnn_benchmarks.py`][2] directly from TensorFlow's GitHub (as a git
+submodule here).
+
+[3]: tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
+
+Run example:
+
+```bash
+sbatch slurm/run-gpu1-mahti.sh tf_cnn_benchmarks.py --model inception3 --num_warmup_batches 10 --num_gpus 1
+```
+
+Horovod with fp16:
+
+```bash
+sbatch slurm/run-gpu8-mahti.sh tf_cnn_benchmarks.py --use_fp16=true --model inception3 --variable_update horovod --horovod_device gpu --num_warmup_batches 10
+```
+
+With real data:
+
+```bash
+DATA_TAR=/scratch/dac/data/ilsvrc2012-tf.tar \
+sbatch slurm/run-gpu1-mahti.sh python3 tf_cnn_benchmarks.py --use_fp16=true --model inception3 --num_warmup_batches 10 --data_name imagenet --data_dir /run/nvme/*/data/ilsvrc2012/
+```
+
+Horovod with real data:
+```bash
+DATA_TAR=/scratch/dac/data/ilsvrc2012-tf.tar \
+sbatch slurm/run-gpu8-mahti.sh tf_cnn_benchmarks.py --use_fp16=true --model inception3 --variable_update horovod --horovod_device gpu --num_warmup_batches 10 --data_name imagenet --data_dir /run/nvme/*/data/ilsvrc2012/ 
+```

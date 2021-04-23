@@ -6,16 +6,11 @@
 #SBATCH --cpus-per-task=40
 #SBATCH --mem=0
 #SBATCH --time=15
-#SBATCH --gres=gpu:v100:4
+#SBATCH --gres=gpu:v100:4,nvme:200
 #SBATCH --output=logs/slurm-%x-%j.out
 
-module list
+SCRIPT_DIR=$(dirname $(scontrol -o show job $SLURM_JOB_ID | sed -e 's/.*Command=//' | cut -d ' ' -f 1))
+source $SCRIPT_DIR/common.sh
 
-set -x
-
-date
-hostname
-nvidia-smi
-
-srun $*
+srun python3 $*
 date
