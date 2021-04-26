@@ -8,8 +8,5 @@
 #SBATCH --gres=gpu:a100:4,nvme:200
 #SBATCH --output=logs/slurm-%x-%j.out
 
-SCRIPT_DIR=$(dirname $(scontrol -o show job $SLURM_JOB_ID | sed -e 's/.*Command=//' | cut -d ' ' -f 1))
-source $SCRIPT_DIR/common.sh
-
-srun python3 $*
-date
+cd $SLURM_SUBMIT_DIR
+source slurm/common.sh

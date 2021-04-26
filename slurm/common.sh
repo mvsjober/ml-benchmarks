@@ -1,12 +1,8 @@
-module list
+SCRIPT=$1
+shift
+cd $SLURM_SUBMIT_DIR
 
-if [ -n "$DATA_TAR" ]; then
-    echo "Extracting $DATA_TAR to $LOCAL_SCRATCH"
-    (set -x
-     srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 \
-          tar xf $DATA_TAR -C $LOCAL_SCRATCH
-    )
-fi
+module list
 
 set -x
 
@@ -14,3 +10,6 @@ date
 hostname
 nvidia-smi
 
+source $SCRIPT $*
+
+date

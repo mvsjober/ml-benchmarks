@@ -22,7 +22,9 @@ parser.add_argument('--val-dir', default=os.path.expanduser('~/imagenet/validati
                     help='path to validation data')
 parser.add_argument('--log-dir', default='./logs',
                     help='tensorboard log directory')
-parser.add_argument('--checkpoint-format', default='./checkpoint-{epoch}.pth.tar',
+parser.add_argument('--resume', action='store_true', default=False, 
+                    help='resume from checkpoint (if exists)')
+parser.add_argument('--checkpoint-format', default='./logs/checkpoint-{epoch}.pth.tar',
                     help='checkpoint file format')
 parser.add_argument('--fp16-allreduce', action='store_true', default=False,
                     help='use fp16 compression during allreduce')
@@ -40,8 +42,10 @@ parser.add_argument('--batch-size', type=int, default=32,
                     help='input batch size for training')
 parser.add_argument('--val-batch-size', type=int, default=32,
                     help='input batch size for validation')
-parser.add_argument('--epochs', type=int, default=90,
+parser.add_argument('--epochs', type=int, default=1,
                     help='number of epochs to train')
+parser.add_argument('--batches-per-epoch', type=int, default=0,
+                    help='restrict number of batches')
 parser.add_argument('--base-lr', type=float, default=0.0125,
                     help='learning rate for a single GPU')
 parser.add_argument('--warmup-epochs', type=float, default=5,
@@ -65,11 +69,15 @@ def train(epoch):
 
     now = datetime.now()
     total_size = len(train_loader)
+    if args.batches_per_epoch > 0:
+        total_size = args.batches_per_epoch
     with tqdm(total=total_size,
               desc='Train Epoch     #{}'.format(epoch + 1),
               disable=not verbose) as t:
         for batch_idx, (data, target) in enumerate(train_loader):
             adjust_learning_rate(epoch, batch_idx)
+            if args.batches_per_epoch > 0 and batch_idx > total_size:
+                break
 
             if args.cuda:
                 data, target = data.cuda(), target.cuda()
@@ -93,7 +101,7 @@ def train(epoch):
     epoch_time = datetime.now()-now
             
     if hvd.rank() == 0:
-        tot_images = len(train_loader) * args.batch_size * hvd.size()
+        tot_images = total_size * args.batch_size * hvd.size()
         print('Epoch duration:', epoch_time)
         print('Images:', tot_images)
         print('Images/sec:', tot_images / epoch_time.total_seconds())
@@ -198,10 +206,11 @@ if __name__ == '__main__':
 
     # If set > 0, will resume training from a given checkpoint.
     resume_from_epoch = 0
-    for try_epoch in range(args.epochs, 0, -1):
-        if os.path.exists(args.checkpoint_format.format(epoch=try_epoch)):
-            resume_from_epoch = try_epoch
-            break
+    if args.resume: 
+        for try_epoch in range(args.epochs, 0, -1):
+            if os.path.exists(args.checkpoint_format.format(epoch=try_epoch)):
+                resume_from_epoch = try_epoch
+                break
 
     # Horovod: broadcast resume_from_epoch from rank 0 (which will have
     # checkpoints) to other ranks.

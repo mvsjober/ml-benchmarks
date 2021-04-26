@@ -62,43 +62,55 @@ other [models from torchvision.models][2].
 Run example:
 
 ```bash
-sbatch slurm/run-gpu1-mahti.sh pytorch_synthetic_benchmark.py --num-iters=100 --batch-size=64
+sbatch slurm/run-gpu1-mahti.sh scripts/pytorch-synthetic-benchmark.sh
 ```
 
 Using Horovod:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh pytorch_synthetic_horovod_benchmark.py --num-iters=100 --batch-size=64
+sbatch slurm/run-gpu8-mahti.sh pytorch-synthetic-benchmark-hvd.sh
 ```
 
-## TensorFlow CNN benchmark
+## PyTorch ResNet50 Horovod benchmark
 
-Uses [`tf_cnn_benchmarks.py`][2] directly from TensorFlow's GitHub (as a git
-submodule here).
+[`pytorch_imagenet_resnet50_horovod_benchmark.py`](pytorch_imagenet_resnet50_horovod_benchmark.py),
+based on [Horovod's example script][3].
 
-[3]: tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
+[3]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_imagenet_resnet50.py
 
 Run example:
 
 ```bash
-sbatch slurm/run-gpu1-mahti.sh tf_cnn_benchmarks.py --model inception3 --num_warmup_batches 10 --num_gpus 1
+sbatch slurm/run-gpu4-mahti.sh scripts/pytorch-horovod-imagenet.sh
+```
+
+
+## TensorFlow CNN benchmark
+
+Uses [`tf_cnn_benchmarks.py`][4] directly from TensorFlow's GitHub (as a git
+submodule here).
+
+[4]: tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
+
+Run example:
+
+```bash
+sbatch slurm/run-gpu1-mahti.sh scripts/tensorflow-cnn-benchmarks.sh
 ```
 
 Horovod with fp16:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh tf_cnn_benchmarks.py --use_fp16=true --model inception3 --variable_update horovod --horovod_device gpu --num_warmup_batches 10
+sbatch slurm/run-gpu8-mahti.sh scripts/tensorflow-cnn-benchmarks-hvd.sh
 ```
 
 With real data:
 
 ```bash
-DATA_TAR=/scratch/dac/data/ilsvrc2012-tf.tar \
-sbatch slurm/run-gpu1-mahti.sh python3 tf_cnn_benchmarks.py --use_fp16=true --model inception3 --num_warmup_batches 10 --data_name imagenet --data_dir /run/nvme/*/data/ilsvrc2012/
+sbatch slurm/run-gpu1-mahti.sh scripts/tensorflow-cnn-benchmarks-data.sh
 ```
 
 Horovod with real data:
 ```bash
-DATA_TAR=/scratch/dac/data/ilsvrc2012-tf.tar \
-sbatch slurm/run-gpu8-mahti.sh tf_cnn_benchmarks.py --use_fp16=true --model inception3 --variable_update horovod --horovod_device gpu --num_warmup_batches 10 --data_name imagenet --data_dir /run/nvme/*/data/ilsvrc2012/ 
+sbatch slurm/run-gpu1-mahti.sh scripts/tensorflow-cnn-benchmarks-hvd-data.sh
 ```

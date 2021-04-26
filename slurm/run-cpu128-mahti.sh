@@ -7,9 +7,6 @@
 #SBATCH --time=0-1
 #SBATCH --output=logs/slurm-%x-%j.out
 
-SCRIPT_DIR=$(dirname $(scontrol -o show job $SLURM_JOB_ID | sed -e 's/.*Command=//' | cut -d ' ' -f 1))
-source $SCRIPT_DIR/common.sh
-
 # Recommended settings from
 # https://software.intel.com/content/www/us/en/develop/articles/how-to-get-better-performance-on-pytorchcaffe2-with-intel-acceleration.html
 
@@ -20,5 +17,5 @@ export OMP_SCHEDULE=STATIC
 export OMP_PROC_BIND=CLOSE
 export GOMP_CPU_AFFINITY="0-127"
 
-srun python3 $*
-date
+cd $SLURM_SUBMIT_DIR
+source slurm/common.sh
