@@ -12,21 +12,6 @@ import timeit
 import numpy as np
 
 
-# class RandomData(Dataset):
-#     def __init__(self, imsize, batch_size, batches_per_iter):
-#         self.imsize = imsize
-#         self.batch_size = batch_size
-#         self.batches_per_iter = batches_per_iter
-
-#     def __len__(self):
-#         return self.batch_size * self.batches_per_iter
-
-#     def __getitem__(self, index):
-#         data = torch.randn(3, self.imsize, self.imsize)
-#         target = torch.randint(0, 1000, ())
-#         return data, target
-
-
 def log(s, nl=True):
     print(s, end='\n' if nl else '', flush=True)
 
@@ -69,10 +54,6 @@ def main(args):
     imsize = 224
     if args.model == 'inception_v3':
         imsize = 299
-    # dataset = RandomData(imsize, args.batch_size, args.num_batches_per_iter)
-    # loader = DataLoader(dataset, batch_size=args.batch_size,
-    #                     num_workers=args.num_workers,
-    #                     persistent_workers=args.num_workers > 0)
 
     def benchmark_step():
         #data, target = next(iter(loader))
