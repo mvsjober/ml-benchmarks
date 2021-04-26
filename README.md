@@ -28,22 +28,6 @@ TYPE one of:
 - `gpu8`, `gpu16`, `gpu24`: 8, 16 or 24 GPUs (i.e, 2, 4 or 6 nodes) with one MPI
   task per GPU (for Horovod)
 
-For example to run a PyTorch script on a single GPU on Puhti:
-
-```bash
-module purge
-module load pytorch/1.8
-sbatch slurm/run-gpu1-puhti.sh python3 my_pytorch_script.py
-```
-
-The scripts also support extracting a tar-file to the NVME local drive by
-setting the `$DATA_TAR` environment variable:
-
-```bash
-DATA_TAR=/scratch/dac/data/ilsvrc2012-tf.tar \
-sbatch slurm/run-gpu8-puhti.sh my_pytorch_script.py --data_dir /run/nvme/*/data/
-```
-
 ## PyTorch synthetic benchmark
 
 Uses [`pytorch_synthetic_benchmark.py`](pytorch_synthetic_benchmark.py),
