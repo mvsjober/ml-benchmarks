@@ -13,12 +13,15 @@ git clone --recursive https://gitlab.ci.csc.fi/msjoberg/ml-benchmarks.git
 If you forget the `--recursive` flag you can always fetch the submodules
 manually: `git submodule init; git submodule update`.
 
-## Slurm scripts
+## Slurm job scripts
 
-The [`slurm`](slurm) directory contains Slurm batch scripts for Puhti and Mahti.
+The job scripts have been split into two parts. The [`slurm`](slurm) directory
+contains scripts with Slurm instructions for Puhti and Mahti for different
+settings, while the [`scripts`](scripts) directory contains run scripts for
+different benchmarks and configurations.
 
-Scripts are named `run-TYPE-SYSTEM.sh` where SYSTEM is `puhti` or `mahti` and
-TYPE one of:
+Slurm scripts are named `run-TYPE-SYSTEM.sh` where SYSTEM is `puhti` or `mahti`
+and TYPE one of:
 
 - `cpu40`: Using all CPUs on Puhti (no GPU)
 - `cpu128`: Using all CPUs on Mahti (no GPU)
@@ -27,6 +30,14 @@ TYPE one of:
 - `gpu4-hvd`: Single node with 4 GPUs using one MPI task per GPU (used with Horovod)
 - `gpu8`, `gpu16`, `gpu24`: 8, 16 or 24 GPUs (i.e, 2, 4 or 6 nodes) with one MPI
   task per GPU (for Horovod)
+
+A batch job is then constructed by first selecting the appropriate Slurm script
+(e.g., 4 GPUs on Mahti), and then the appropriate benchmark script (e.g. PyTorch
+Horovod ImageNet benchmark):
+
+```bash
+sbatch slurm/run-gpu4-mahti.sh scripts/pytorch-horovod-imagenet.sh
+```
 
 ## PyTorch synthetic benchmark
 
@@ -55,9 +66,26 @@ Using Horovod:
 sbatch slurm/run-gpu8-mahti.sh pytorch-synthetic-benchmark-hvd.sh
 ```
 
+## PyTorch ImageNet benchmark
+
+Uses [`pytorch_imagenet.py`](pytorch_imagenet.py) and
+[`pytorch_imagenet_amp.py`](pytorch_imagenet_amp.py) for mixed precision.
+
+Run example:
+
+```
+sbatch slurm/run-gpu1-mahti.sh scripts/pytorch-imagenet.sh
+```
+
+Run example with Multi-GPU and AMP:
+
+```bash
+sbatch slurm/run-gpu4-mahti.sh scripts/pytorch-imagenet-amp-multigpu.sh
+```
+
 ## PyTorch ResNet50 Horovod benchmark
 
-[`pytorch_imagenet_resnet50_horovod_benchmark.py`](pytorch_imagenet_resnet50_horovod_benchmark.py),
+Uses [`pytorch_imagenet_resnet50_horovod_benchmark.py`](pytorch_imagenet_resnet50_horovod_benchmark.py),
 based on [Horovod's example script][3].
 
 [3]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_imagenet_resnet50.py
