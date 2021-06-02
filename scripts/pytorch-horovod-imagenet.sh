@@ -6,4 +6,4 @@ srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 \
 srun python3 pytorch_imagenet_resnet50_horovod_benchmark.py --fp16-allreduce \
      --train-dir=${LOCAL_SCRATCH}/train \
      --val-dir=${LOCAL_SCRATCH}/val \
-     --epochs=1 --batches-per-epoch 1000 $*
+     --epochs=1 --batches-per-epoch 10000 $*

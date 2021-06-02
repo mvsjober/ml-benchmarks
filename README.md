@@ -93,7 +93,7 @@ based on [Horovod's example script][3].
 Run example:
 
 ```bash
-sbatch slurm/run-gpu4-mahti.sh scripts/pytorch-horovod-imagenet.sh
+sbatch slurm/run-gpu8-mahti.sh scripts/pytorch-horovod-imagenet.sh
 ```
 
 
