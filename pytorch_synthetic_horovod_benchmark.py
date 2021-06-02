@@ -17,9 +17,20 @@ def log(s, nl=True):
     print(s, end='\n' if nl else '', flush=True)
 
 
+def generate_data(args):
+    imsize = 224
+    if args.model == 'inception_v3':
+        imsize = 299
+    data = torch.randn(args.batch_size, 3, imsize, imsize)
+    target = torch.LongTensor(args.batch_size).random_() % 1000
+    if args.cuda:
+        data, target = data.cuda(), target.cuda()
+    return data, target
+
+
 def main(args):
     hvd.init()
-    
+
     args.cuda = not args.no_cuda and torch.cuda.is_available()
     if args.cuda:
         device = torch.device('cuda')
@@ -55,10 +66,6 @@ def main(args):
 
     optimizer = optim.SGD(model.parameters(), lr=0.01 * lr_scaler)
 
-    imsize = 224
-    if args.model == 'inception_v3':
-        imsize = 299
-
     # Horovod: (optional) compression algorithm.
     compression = hvd.Compression.fp16 if args.fp16_allreduce else hvd.Compression.none
 
@@ -72,11 +79,14 @@ def main(args):
     hvd.broadcast_parameters(model.state_dict(), root_rank=0)
     hvd.broadcast_optimizer_state(optimizer, root_rank=0)
 
+    if args.fixed_data:
+        data, target = generate_data(args)
+
     def benchmark_step():
-        data = torch.randn(args.batch_size, 3, imsize, imsize)
-        target = torch.LongTensor(args.batch_size).random_() % 1000
-        if args.cuda:
-            data, target = data.cuda(), target.cuda()
+        nonlocal data, target
+
+        if not args.fixed_data:
+            data, target = generate_data(args)
 
         optimizer.zero_grad()
         output = model(data)
@@ -132,6 +142,8 @@ if __name__ == '__main__':
 
     parser.add_argument('--use-adasum', action='store_true', default=False,
                         help='use adasum algorithm to do reduction')
+    parser.add_argument('--fixed-data', action='store_true', default=False,
+                        help='use fixed random data for training')
 
     args = parser.parse_args()
     main(args)
