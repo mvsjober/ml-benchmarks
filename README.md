@@ -63,7 +63,7 @@ sbatch slurm/run-gpu1-mahti.sh scripts/pytorch-synthetic-benchmark.sh
 Using Horovod:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh pytorch-synthetic-benchmark-hvd.sh
+sbatch slurm/run-gpu8-mahti.sh scripts/pytorch-synthetic-benchmark-hvd.sh
 ```
 
 ## PyTorch ImageNet benchmark
