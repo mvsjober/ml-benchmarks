@@ -7,7 +7,7 @@ Mainly for use with CSC's supercomputers.
 Clone this repository:
 
 ```bash
-git clone --recursive https://gitlab.ci.csc.fi/msjoberg/ml-benchmarks.git
+git clone --recursive https://github.com/mvsjober/ml-benchmarks
 ```
 
 If you forget the `--recursive` flag you can always fetch the submodules
