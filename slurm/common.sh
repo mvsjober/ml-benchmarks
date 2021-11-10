@@ -9,6 +9,7 @@ export NCCL_DEBUG=INFO
 
 set -x
 
+singularity --version
 date
 hostname
 nvidia-smi
