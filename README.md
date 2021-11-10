@@ -7,7 +7,7 @@ Mainly for use with CSC's supercomputers.
 Clone this repository:
 
 ```bash
-git clone --recursive https://gitlab.ci.csc.fi/msjoberg/ml-benchmarks.git
+git clone --recursive https://github.com/mvsjober/ml-benchmarks
 ```
 
 If you forget the `--recursive` flag you can always fetch the submodules
@@ -63,7 +63,7 @@ sbatch slurm/run-gpu1-mahti.sh scripts/pytorch-synthetic-benchmark.sh
 Using Horovod:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh pytorch-synthetic-benchmark-hvd.sh
+sbatch slurm/run-gpu8-mahti.sh scripts/pytorch-synthetic-benchmark-hvd.sh
 ```
 
 ## PyTorch ImageNet benchmark
