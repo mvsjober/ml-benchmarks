@@ -32,10 +32,7 @@ tasks).
 | Benchmark         | Script name                        | Data      | Multi-GPU | Horovod |
 | ---------         | -----------                        | ----      | --------- | ---     |
 | PyTorch synthetic | `pytorch-synthetic.sh`             | synthetic | X         | X       |
-| PyTorch ImageNet  | `pytorch-imagenet.sh`              | ImageNet  | -         | -       |
-|                   | `pytorch-imagenet-multigpu.sh`     | ImageNet  | X         | -       |
-|                   | `pytorch-imagenet-amp.sh`          | ImageNet  | -         | -       |
-|                   | `pytorch-imagenet-amp-multigpu.sh` | ImageNet  | X         | -       |
+| PyTorch ImageNet  | `pytorch-imagenet.sh`              | ImageNet  | X         | -       |
 | PyTorch Horovod   | `pytorch-imagenet-hvd.sh`          | ImageNet  | X         | X       |
 | TensorFlow CNN    | `tensorflow-cnn.sh`                | synthetic | X         | -       |
 |                   | `tensorflow-cnn-hvd.sh`            | synthetic | X         | X       |
@@ -93,7 +90,7 @@ sbatch slurm/mahti-gpu1.sh pytorch-imagenet.sh
 Run example with Multi-GPU and AMP:
 
 ```bash
-sbatch slurm/mahti-gpu4.sh pytorch-imagenet-amp-multigpu.sh
+sbatch slurm/mahti-gpu4.sh pytorch-imagenet.sh --amp
 ```
 
 ## PyTorch ResNet50 Horovod benchmark

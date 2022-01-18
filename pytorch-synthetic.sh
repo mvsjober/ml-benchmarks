@@ -1,9 +1,9 @@
 ARGS="--batch-size=64 --num-iters=100"
 
-if [ $SLURM_NTASKS -eq 1 ]; then
+if [ "$SLURM_NTASKS" -eq 1 ]; then
     SCRIPT="benchmarks/pytorch_synthetic_benchmark.py"
     
-    if [ $NUM_GPUS -gt 1 ]; then
+    if [ "$NUM_GPUS" -gt 1 ]; then
         ARGS="$ARGS --multi-gpu"
     fi
 else
