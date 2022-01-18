@@ -1,48 +1,57 @@
 # Machine learning benchmarks
 
-Mainly for use with CSC's supercomputers.
+Collection of various machine learning benchmarks together with Slurm scripts
+for CSC's supercomputers.
 
-## Setup
+The benchmarks themselves (Python code) can be found in the `benchmarks`
+directory. Main run scripts are in the root folder as `*.sh` files. The Slurm
+settings have been separated into their own scripts in the `slurm` folder. 
 
-Clone this repository:
-
-```bash
-git clone --recursive https://github.com/mvsjober/ml-benchmarks
-```
-
-If you forget the `--recursive` flag you can always fetch the submodules
-manually: `git submodule init; git submodule update`.
-
-## Slurm job scripts
-
-The job scripts have been split into two parts. The [`slurm`](slurm) directory
-contains scripts with Slurm instructions for Puhti and Mahti for different
-settings, while the [`scripts`](scripts) directory contains run scripts for
-different benchmarks and configurations.
-
-Slurm scripts are named `run-TYPE-SYSTEM.sh` where SYSTEM is `puhti` or `mahti`
-and TYPE one of:
-
-- `cpu40`: Using all CPUs on Puhti (no GPU)
-- `cpu128`: Using all CPUs on Mahti (no GPU)
-- `gpu1`: 1 GPU run with 1/4 of the node's cores and memory resources
-- `gpu4`: 4 GPUs and the whole node's resources
-- `gpu4-hvd`: Single node with 4 GPUs using one MPI task per GPU (used with Horovod)
-- `gpu8`, `gpu16`, `gpu24`: 8, 16 or 24 GPUs (i.e, 2, 4 or 6 nodes) with one MPI
-  task per GPU (for Horovod)
-
-A batch job is then constructed by first selecting the appropriate Slurm script
-(e.g., 4 GPUs on Mahti), and then the appropriate benchmark script (e.g. PyTorch
-Horovod ImageNet benchmark):
+Typical usage would be to first select a benchmark (e.g. PyTorch synthetic) and
+then appropriate Slurm settings (4 GPUs on Mahti, single node, no MPI). The command
+would then be:
 
 ```bash
-sbatch slurm/run-gpu4-mahti.sh scripts/pytorch-horovod-imagenet.sh
+sbatch slurm/mahti-gpu4.sh scripts/pytorch-synthetic.sh
 ```
 
-## PyTorch synthetic benchmark
+## Available run scripts
 
-Uses [`pytorch_synthetic_benchmark.py`](pytorch_synthetic_benchmark.py),
-originally based on [Horovod's example script with the same name][1]. Note that
+Slurm run scripts can be found in `slurm/*.sh`, these are named as
+`[puhti|mahti]-[cpu|gpu]N.sh` where `N` is the number of CPUs or GPUs reserved.
+
+Scripts are all single-node, single MPI-task unless it ends with `-mpi.sh`. Then
+it uses the task-per-GPU approach, assuming 4 GPUs per node. For example
+`mahti-gpu8-mpi.sh` reserves two nodes, with 4 GPUs, and 4 MPI tasks per node.
+
+
+## Available benchmarks
+
+| Benchmark         | Script name                             | Data      | Multi-GPU | MPI |
+| ---------         | -----------                             | ----      | --------- | --- |
+| PyTorch synthetic | `pytorch-synthetic.sh`                  | synthetic | X         | -   |
+|                   | `pytorch-synthetic-hvd.sh`              | synthetic | X         | X   |
+| PyTorch ImageNet  | `pytorch-imagenet.sh`                   | ImageNet  | -         | -   |
+|                   | `pytorch-imagenet-multigpu.sh`          | ImageNet  | X         | -   |
+|                   | `pytorch-imagenet-amp.sh`               | ImageNet  | -         | -   |
+|                   | `pytorch-imagenet-amp-multigpu.sh`      | ImageNet  | X         | -   |
+| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`               | ImageNet  | X         | X   |
+| TensorFlow CNN    | `tensorflow-cnn-benchmarks.sh`          | synthetic | X         | -   |
+|                   | `tensorflow-cnn-benchmarks-hvd.sh`      | synthetic | X         | X   |
+|                   | `tensorflow-cnn-benchmarks-data.sh`     | ImageNet  | X         | -   |
+|                   | `tensorflow-cnn-benchmarks-data-hvd.sh` | ImageNet  | X         | X   |
+
+An "X" in the Multi-GPU column in the table above means the ability to use
+multiple GPUs. If there is also an "X" in the MPI column this means using an MPI
+task for each GPU, other wise this means that there is a single task handling
+multiple GPUs.
+
+The different benchmarks are described below in more detail. 
+
+
+### PyTorch synthetic benchmark
+
+Originally based on [Horovod's example script with the same name][1]. Note that
 the original script used a single fixed random batch which was feed to the
 network again and again. Some systems and setups are able to optimize this
 scenario giving very unrealistic results. We have modified the script to
@@ -54,46 +63,42 @@ other [models from torchvision.models][2].
 [1]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_synthetic_benchmark.py
 [2]: https://pytorch.org/vision/stable/models.html
 
-Run example:
+Run example with single GPU:
 
 ```bash
-sbatch slurm/run-gpu1-mahti.sh scripts/pytorch-synthetic-benchmark.sh
+sbatch slurm/mahti-gpu1.sh pytorch-synthetic.sh
 ```
 
-Using Horovod:
+Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh scripts/pytorch-synthetic-benchmark-hvd.sh
+sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic-hvd.sh
 ```
 
 ## PyTorch ImageNet benchmark
 
-Uses [`pytorch_imagenet.py`](pytorch_imagenet.py) and
-[`pytorch_imagenet_amp.py`](pytorch_imagenet_amp.py) for mixed precision.
-
 Run example:
 
 ```
-sbatch slurm/run-gpu1-mahti.sh scripts/pytorch-imagenet.sh
+sbatch slurm/mahti-gpu1.sh pytorch-imagenet.sh
 ```
 
 Run example with Multi-GPU and AMP:
 
 ```bash
-sbatch slurm/run-gpu4-mahti.sh scripts/pytorch-imagenet-amp-multigpu.sh
+sbatch slurm/mahti-gpu4.sh pytorch-imagenet-amp-multigpu.sh
 ```
 
 ## PyTorch ResNet50 Horovod benchmark
 
-Uses [`pytorch_imagenet_resnet50_horovod_benchmark.py`](pytorch_imagenet_resnet50_horovod_benchmark.py),
-based on [Horovod's example script][3].
+Based on [Horovod's example script][3].
 
 [3]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_imagenet_resnet50.py
 
 Run example:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh scripts/pytorch-horovod-imagenet.sh
+sbatch slurm/mahti-gpu8-mpi.sh pytorch-imagenet-hvd.sh
 ```
 
 
@@ -107,22 +112,22 @@ submodule here).
 Run example:
 
 ```bash
-sbatch slurm/run-gpu1-mahti.sh scripts/tensorflow-cnn-benchmarks.sh
+sbatch slurm/mahti-gpu1.sh tensorflow-cnn-benchmarks.sh
 ```
 
 Horovod with fp16:
 
 ```bash
-sbatch slurm/run-gpu8-mahti.sh scripts/tensorflow-cnn-benchmarks-hvd.sh
+sbatch slurm/mahti-gpu8.sh tensorflow-cnn-benchmarks-hvd.sh
 ```
 
 With real data:
 
 ```bash
-sbatch slurm/run-gpu1-mahti.sh scripts/tensorflow-cnn-benchmarks-data.sh
+sbatch slurm/mahti-gpu1.sh tensorflow-cnn-benchmarks-data.sh
 ```
 
 Horovod with real data:
 ```bash
-sbatch slurm/run-gpu1-mahti.sh scripts/tensorflow-cnn-benchmarks-hvd-data.sh
+sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn-benchmarks-hvd-data.sh
 ```

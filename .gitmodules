@@ -1,3 +1,3 @@
 [submodule "tensorflow-benchmarks"]
-	path = tensorflow-benchmarks
+	path = benchmarks/tensorflow-benchmarks
 	url = https://github.com/tensorflow/benchmarks
