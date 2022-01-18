@@ -4,42 +4,44 @@ Collection of various machine learning benchmarks together with Slurm scripts
 for CSC's supercomputers.
 
 The benchmarks themselves (Python code) can be found in the `benchmarks`
-directory. Main run scripts are in the root folder as `*.sh` files. The Slurm
-settings have been separated into their own scripts in the `slurm` folder. 
+directory. Main run scripts are in the root directory as `*.sh` files. The Slurm
+settings have been separated into their own scripts in the `slurm` directory.
 
-Typical usage would be to first select a benchmark (e.g. PyTorch synthetic) and
-then appropriate Slurm settings (4 GPUs on Mahti, single node, no MPI). The command
-would then be:
+Typical usage would be to first select a benchmark (e.g., PyTorch synthetic) and
+then appropriate Slurm settings (e.g., Mahti with 4 GPUs on Mahti, single node,
+no MPI). The command would then be:
 
 ```bash
-sbatch slurm/mahti-gpu4.sh scripts/pytorch-synthetic.sh
+sbatch slurm/mahti-gpu4.sh pytorch-synthetic.sh
 ```
 
 ## Available run scripts
 
-Slurm run scripts can be found in `slurm/*.sh`, these are named as
+Slurm run scripts can be found in the `slurm` directory, these are named as
 `[puhti|mahti]-[cpu|gpu]N.sh` where `N` is the number of CPUs or GPUs reserved.
 
-Scripts are all single-node, single MPI-task unless it ends with `-mpi.sh`. Then
-it uses the task-per-GPU approach, assuming 4 GPUs per node. For example
-`mahti-gpu8-mpi.sh` reserves two nodes, with 4 GPUs, and 4 MPI tasks per node.
+Scripts are all single-node, single MPI task unless it ends with `-mpi.sh`.
+Tasks with the `-mpi.sh` ending launch a separate MPI task for each GPU,
+assuming 4 GPUs per node. For example `mahti-gpu8-mpi.sh` reserves two nodes,
+with 4 GPUs (and thus 4 MPI tasks) per node, giving a total of 8 GPUs (and 8 MPI
+tasks).
 
 
 ## Available benchmarks
 
-| Benchmark         | Script name                             | Data      | Multi-GPU | MPI |
-| ---------         | -----------                             | ----      | --------- | --- |
-| PyTorch synthetic | `pytorch-synthetic.sh`                  | synthetic | X         | -   |
-|                   | `pytorch-synthetic-hvd.sh`              | synthetic | X         | X   |
-| PyTorch ImageNet  | `pytorch-imagenet.sh`                   | ImageNet  | -         | -   |
-|                   | `pytorch-imagenet-multigpu.sh`          | ImageNet  | X         | -   |
-|                   | `pytorch-imagenet-amp.sh`               | ImageNet  | -         | -   |
-|                   | `pytorch-imagenet-amp-multigpu.sh`      | ImageNet  | X         | -   |
-| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`               | ImageNet  | X         | X   |
-| TensorFlow CNN    | `tensorflow-cnn-benchmarks.sh`          | synthetic | X         | -   |
-|                   | `tensorflow-cnn-benchmarks-hvd.sh`      | synthetic | X         | X   |
-|                   | `tensorflow-cnn-benchmarks-data.sh`     | ImageNet  | X         | -   |
-|                   | `tensorflow-cnn-benchmarks-data-hvd.sh` | ImageNet  | X         | X   |
+| Benchmark         | Script name                        | Data      | Multi-GPU | MPI |
+| ---------         | -----------                        | ----      | --------- | --- |
+| PyTorch synthetic | `pytorch-synthetic.sh`             | synthetic | X         | -   |
+|                   | `pytorch-synthetic-hvd.sh`         | synthetic | X         | X   |
+| PyTorch ImageNet  | `pytorch-imagenet.sh`              | ImageNet  | -         | -   |
+|                   | `pytorch-imagenet-multigpu.sh`     | ImageNet  | X         | -   |
+|                   | `pytorch-imagenet-amp.sh`          | ImageNet  | -         | -   |
+|                   | `pytorch-imagenet-amp-multigpu.sh` | ImageNet  | X         | -   |
+| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`          | ImageNet  | X         | X   |
+| TensorFlow CNN    | `tensorflow-cnn.sh`                | synthetic | X         | -   |
+|                   | `tensorflow-cnn-hvd.sh`            | synthetic | X         | X   |
+|                   | `tensorflow-cnn-data.sh`           | ImageNet  | X         | -   |
+|                   | `tensorflow-cnn-data-hvd.sh`       | ImageNet  | X         | X   |
 
 An "X" in the Multi-GPU column in the table above means the ability to use
 multiple GPUs. If there is also an "X" in the MPI column this means using an MPI
@@ -112,22 +114,22 @@ submodule here).
 Run example:
 
 ```bash
-sbatch slurm/mahti-gpu1.sh tensorflow-cnn-benchmarks.sh
+sbatch slurm/mahti-gpu1.sh tensorflow-cnn.sh
 ```
 
 Horovod with fp16:
 
 ```bash
-sbatch slurm/mahti-gpu8.sh tensorflow-cnn-benchmarks-hvd.sh
+sbatch slurm/mahti-gpu8.sh tensorflow-cnn-hvd.sh
 ```
 
 With real data:
 
 ```bash
-sbatch slurm/mahti-gpu1.sh tensorflow-cnn-benchmarks-data.sh
+sbatch slurm/mahti-gpu1.sh tensorflow-cnn-data.sh
 ```
 
 Horovod with real data:
 ```bash
-sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn-benchmarks-hvd-data.sh
+sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn-hvd-data.sh
 ```
