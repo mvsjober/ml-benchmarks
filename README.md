@@ -29,15 +29,12 @@ tasks).
 
 ## Available benchmarks
 
-| Benchmark         | Script name                        | Data      | Multi-GPU | Horovod |
-| ---------         | -----------                        | ----      | --------- | ---     |
-| PyTorch synthetic | `pytorch-synthetic.sh`             | synthetic | X         | X       |
-| PyTorch ImageNet  | `pytorch-imagenet.sh`              | ImageNet  | X         | -       |
-| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`          | ImageNet  | X         | X       |
-| TensorFlow CNN    | `tensorflow-cnn.sh`                | synthetic | X         | -       |
-|                   | `tensorflow-cnn-hvd.sh`            | synthetic | X         | X       |
-|                   | `tensorflow-cnn-data.sh`           | ImageNet  | X         | -       |
-|                   | `tensorflow-cnn-data-hvd.sh`       | ImageNet  | X         | X       |
+| Benchmark         | Script name                  | Data               | Multi-GPU | Horovod |
+| ---------         | -----------                  | ----               | --------- | ---     |
+| PyTorch synthetic | `pytorch-synthetic.sh`       | synthetic          | X         | X       |
+| PyTorch ImageNet  | `pytorch-imagenet.sh`        | ImageNet           | X         | -       |
+| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`    | ImageNet           | X         | X       |
+| TensorFlow CNN    | `tensorflow-cnn.sh`          | synthetic/ImageNet | X         | -       |
 
 An "X" in the Multi-GPU column in the table above means the script supports
 multiple GPUs. An "X" in the MPI column this means the script support using MPI
@@ -79,7 +76,7 @@ Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI:
 sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic.sh
 ```
 
-## PyTorch ImageNet benchmark
+## PyTorch ImageNet
 
 Run example:
 
@@ -93,7 +90,7 @@ Run example with Multi-GPU and AMP:
 sbatch slurm/mahti-gpu4.sh pytorch-imagenet.sh --amp
 ```
 
-## PyTorch ResNet50 Horovod benchmark
+## PyTorch ResNet50 Horovod
 
 Based on [Horovod's example script][3].
 
@@ -106,12 +103,12 @@ sbatch slurm/mahti-gpu8-mpi.sh pytorch-imagenet-hvd.sh
 ```
 
 
-## TensorFlow CNN benchmark
+## TensorFlow CNN
 
 Uses [`tf_cnn_benchmarks.py`][4] directly from TensorFlow's GitHub (as a git
 submodule here).
 
-[4]: tensorflow-benchmarks/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
+[4]: https://github.com/tensorflow/benchmarks/blob/master/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
 
 Run example:
 
@@ -119,19 +116,19 @@ Run example:
 sbatch slurm/mahti-gpu1.sh tensorflow-cnn.sh
 ```
 
-Horovod with fp16:
+Horovod:
 
 ```bash
-sbatch slurm/mahti-gpu8.sh tensorflow-cnn-hvd.sh
+sbatch slurm/mahti-gpu8.sh tensorflow-cnn.sh
 ```
 
 With real data:
 
 ```bash
-sbatch slurm/mahti-gpu1.sh tensorflow-cnn-data.sh
+sbatch slurm/mahti-gpu1.sh tensorflow-cnn.sh --data
 ```
 
 Horovod with real data:
 ```bash
-sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn-hvd-data.sh
+sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn.sh --data
 ```
