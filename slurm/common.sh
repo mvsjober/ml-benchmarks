@@ -7,13 +7,17 @@ module list
 export NCCL_DEBUG=INFO
 #export NCCL_DEBUG_SUBSYS=ALL
 
-set -x
-
-singularity --version
-date
+(set -x
+#singularity --version
 hostname
-nvidia-smi
+nvidia-smi -L
+date
+)
+
+export NUM_GPUS=$(nvidia-smi -L | wc -l)
 
 source $SCRIPT $*
 
+(set -x
 date
+)

@@ -29,29 +29,27 @@ tasks).
 
 ## Available benchmarks
 
-| Benchmark         | Script name                        | Data      | Multi-GPU | MPI |
-| ---------         | -----------                        | ----      | --------- | --- |
-| PyTorch synthetic | `pytorch-synthetic.sh`             | synthetic | X         | -   |
-|                   | `pytorch-synthetic-hvd.sh`         | synthetic | X         | X   |
-| PyTorch ImageNet  | `pytorch-imagenet.sh`              | ImageNet  | -         | -   |
-|                   | `pytorch-imagenet-multigpu.sh`     | ImageNet  | X         | -   |
-|                   | `pytorch-imagenet-amp.sh`          | ImageNet  | -         | -   |
-|                   | `pytorch-imagenet-amp-multigpu.sh` | ImageNet  | X         | -   |
-| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`          | ImageNet  | X         | X   |
-| TensorFlow CNN    | `tensorflow-cnn.sh`                | synthetic | X         | -   |
-|                   | `tensorflow-cnn-hvd.sh`            | synthetic | X         | X   |
-|                   | `tensorflow-cnn-data.sh`           | ImageNet  | X         | -   |
-|                   | `tensorflow-cnn-data-hvd.sh`       | ImageNet  | X         | X   |
+| Benchmark         | Script name                        | Data      | Multi-GPU | Horovod |
+| ---------         | -----------                        | ----      | --------- | ---     |
+| PyTorch synthetic | `pytorch-synthetic.sh`             | synthetic | X         | X       |
+| PyTorch ImageNet  | `pytorch-imagenet.sh`              | ImageNet  | -         | -       |
+|                   | `pytorch-imagenet-multigpu.sh`     | ImageNet  | X         | -       |
+|                   | `pytorch-imagenet-amp.sh`          | ImageNet  | -         | -       |
+|                   | `pytorch-imagenet-amp-multigpu.sh` | ImageNet  | X         | -       |
+| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`          | ImageNet  | X         | X       |
+| TensorFlow CNN    | `tensorflow-cnn.sh`                | synthetic | X         | -       |
+|                   | `tensorflow-cnn-hvd.sh`            | synthetic | X         | X       |
+|                   | `tensorflow-cnn-data.sh`           | ImageNet  | X         | -       |
+|                   | `tensorflow-cnn-data-hvd.sh`       | ImageNet  | X         | X       |
 
-An "X" in the Multi-GPU column in the table above means the ability to use
-multiple GPUs. If there is also an "X" in the MPI column this means using an MPI
-task for each GPU, other wise this means that there is a single task handling
-multiple GPUs.
+An "X" in the Multi-GPU column in the table above means the script supports
+multiple GPUs. An "X" in the MPI column this means the script support using MPI
+(Horovod).
 
 The different benchmarks are described below in more detail. 
 
 
-### PyTorch synthetic benchmark
+### PyTorch synthetic
 
 Originally based on [Horovod's example script with the same name][1]. Note that
 the original script used a single fixed random batch which was feed to the
@@ -71,10 +69,17 @@ Run example with single GPU:
 sbatch slurm/mahti-gpu1.sh pytorch-synthetic.sh
 ```
 
+Run example with 4 GPUs. Note that you can also add arguments to be given to
+the Python script:
+
+```bash
+sbatch slurm/mahti-gpu4.sh pytorch-synthetic.sh --batch-size=32
+```
+
 Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI:
 
 ```bash
-sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic-hvd.sh
+sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic.sh
 ```
 
 ## PyTorch ImageNet benchmark
