@@ -6,6 +6,7 @@ fi
 SCRIPT="benchmarks/pytorch_imagenet.py"
 
 if [ "$1" == "--amp" ]; then
+    shift
     SCRIPT="benchmarks/pytorch_imagenet_amp.py"
 fi
 
