@@ -15,6 +15,9 @@ no MPI). The command would then be:
 sbatch slurm/mahti-gpu4.sh pytorch-synthetic.sh
 ```
 
+**Note:** further [benchmarks related to distributed PyTorch can be
+  found in a separate GitHub repository][1].
+
 ## Available run scripts
 
 Slurm run scripts can be found in the `slurm` directory, these are named as
@@ -45,17 +48,14 @@ The different benchmarks are described below in more detail.
 
 ### PyTorch synthetic
 
-Originally based on [Horovod's example script with the same name][1]. Note that
+Originally based on [Horovod's example script with the same name][2]. Note that
 the original script used a single fixed random batch which was feed to the
 network again and again. Some systems and setups are able to optimize this
 scenario giving very unrealistic results. We have modified the script to
 generate a new random batch each time.
 
 Runs with "resnet50" model by default, but also supports "inception_v3" and
-other [models from torchvision.models][2].
-
-[1]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_synthetic_benchmark.py
-[2]: https://pytorch.org/vision/stable/models.html
+other [models from torchvision.models][3].
 
 Run example with single GPU:
 
@@ -92,9 +92,7 @@ sbatch slurm/mahti-gpu4.sh pytorch-imagenet.sh --amp
 
 ## PyTorch ResNet50 Horovod
 
-Based on [Horovod's example script][3].
-
-[3]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_imagenet_resnet50.py
+Based on [Horovod's example script][4].
 
 Run example:
 
@@ -105,10 +103,8 @@ sbatch slurm/mahti-gpu8-mpi.sh pytorch-imagenet-hvd.sh
 
 ## TensorFlow CNN
 
-Uses [`tf_cnn_benchmarks.py`][4] directly from TensorFlow's GitHub (as a git
+Uses [`tf_cnn_benchmarks.py`][5] directly from TensorFlow's GitHub (as a git
 submodule here).
-
-[4]: https://github.com/tensorflow/benchmarks/blob/master/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
 
 Run example:
 
@@ -132,3 +128,10 @@ Horovod with real data:
 ```bash
 sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn.sh --data
 ```
+
+
+[1]: https://github.com/CSCfi/pytorch-ddp-examples#benchmark-codes
+[2]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_synthetic_benchmark.py
+[3]: https://pytorch.org/vision/stable/models.html
+[4]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_imagenet_resnet50.py
+[5]: https://github.com/tensorflow/benchmarks/blob/master/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
