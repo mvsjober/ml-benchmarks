@@ -3,6 +3,7 @@ ARGS="--model inception3 --num_warmup_batches 10 --use_fp16=true"
 
 if [ "$1" == "--data" ]; then
     DATASET_TAR_ARCHIVE=/scratch/dac/data/ilsvrc2012-tf.tar
+    shift
 
     (set -x
     srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 \
