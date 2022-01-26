@@ -115,7 +115,7 @@ sbatch slurm/mahti-gpu1.sh tensorflow-cnn.sh
 Horovod:
 
 ```bash
-sbatch slurm/mahti-gpu8.sh tensorflow-cnn.sh
+sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn.sh
 ```
 
 With real data:
