@@ -32,12 +32,13 @@ tasks).
 
 ## Available benchmarks
 
-| Benchmark         | Script name                  | Data               | Multi-GPU | Horovod |
-| ---------         | -----------                  | ----               | --------- | ---     |
-| PyTorch synthetic | `pytorch-synthetic.sh`       | synthetic          | X         | X       |
-| PyTorch ImageNet  | `pytorch-imagenet.sh`        | ImageNet           | X         | -       |
-| PyTorch Horovod   | `pytorch-imagenet-hvd.sh`    | ImageNet           | X         | X       |
-| TensorFlow CNN    | `tensorflow-cnn.sh`          | synthetic/ImageNet | X         | -       |
+| Benchmark         | Script name               | Data               | Multi-GPU | Horovod |
+| ---------         | -----------               | ----               | --------- | ---     |
+| PyTorch synthetic | `pytorch-synthetic.sh`    | synthetic          | X         | X       |
+| PyTorch ImageNet  | `pytorch-imagenet.sh`     | ImageNet           | X         | -       |
+| PyTorch Horovod   | `pytorch-imagenet-hvd.sh` | ImageNet           | X         | X       |
+| PyTorch DDP       | `pytorch-ddp.sh`          | synthetic/ImageNet | X         | - (DDP) |
+| TensorFlow CNN    | `tensorflow-cnn.sh`       | synthetic/ImageNet | X         | -       |
 
 An "X" in the Multi-GPU column in the table above means the script supports
 multiple GPUs. An "X" in the MPI column this means the script support using MPI
@@ -100,6 +101,22 @@ Run example:
 sbatch slurm/mahti-gpu8-mpi.sh pytorch-imagenet-hvd.sh
 ```
 
+## PyTorch DDP
+
+[PyTorch benchmark using Distributed Data Parallel for handling multiple
+GPUs](https://github.com/CSCfi/pytorch-ddp-examples).
+
+Run example with 4 GPUs on Puhti using synthetic data:
+
+```bash
+sbatch slurm/puhti-gpu4.sh pytorch-ddp.sh
+```
+
+Run example with 8 GPUs (on 2 nodes) using real ImageNet data:
+
+```bash
+sbatch slurm/puhti-gpu8.sh pytorch-ddp.sh --data
+```
 
 ## TensorFlow CNN
 
