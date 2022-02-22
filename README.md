@@ -15,9 +15,6 @@ no MPI). The command would then be:
 sbatch slurm/mahti-gpu4.sh pytorch-synthetic.sh
 ```
 
-**Note:** further [benchmarks related to distributed PyTorch can be
-  found in a separate GitHub repository][1].
-
 ## Available run scripts
 
 Slurm run scripts can be found in the `slurm` directory, these are named as
@@ -32,31 +29,27 @@ tasks).
 
 ## Available benchmarks
 
-| Benchmark         | Script name               | Data               | Multi-GPU | Horovod |
-| ---------         | -----------               | ----               | --------- | ---     |
-| PyTorch synthetic | `pytorch-synthetic.sh`    | synthetic          | X         | X       |
-| PyTorch ImageNet  | `pytorch-imagenet.sh`     | ImageNet           | X         | -       |
-| PyTorch Horovod   | `pytorch-imagenet-hvd.sh` | ImageNet           | X         | X       |
-| PyTorch DDP       | `pytorch-ddp.sh`          | synthetic/ImageNet | X         | - (DDP) |
-| TensorFlow CNN    | `tensorflow-cnn.sh`       | synthetic/ImageNet | X         | -       |
-
-An "X" in the Multi-GPU column in the table above means the script supports
-multiple GPUs. An "X" in the MPI column this means the script support using MPI
-(Horovod).
+| Benchmark                 | Script name                    | Data               | Multi-node |
+| ---------                 | -----------                    | ----               | ---        |
+| PyTorch synthetic         | `pytorch-synthetic.sh`         | synthetic          | Horovod    |
+| PyTorch DDP               | `pytorch-ddp.sh`               | synthetic/ImageNet | DDP        |
+| PyTorch DDP Lightning     | `pytorch-ddp-lightning.sh`     | synthetic/ImageNet | DDP        |
+| PyTorch Horovod Lightning | `pytorch-horovod-lightning.sh` | synthetic/ImageNet | Horovod    |
+| TensorFlow CNN            | `tensorflow-cnn.sh`            | synthetic/ImageNet | -          |
 
 The different benchmarks are described below in more detail. 
 
 
 ### PyTorch synthetic
 
-Originally based on [Horovod's example script with the same name][2]. Note that
+Originally based on [Horovod's example script with the same name][1]. Note that
 the original script used a single fixed random batch which was feed to the
 network again and again. Some systems and setups are able to optimize this
 scenario giving very unrealistic results. We have modified the script to
 generate a new random batch each time.
 
 Runs with "resnet50" model by default, but also supports "inception_v3" and
-other [models from torchvision.models][3].
+other [models from torchvision.models][2].
 
 Run example with single GPU:
 
@@ -77,34 +70,9 @@ Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI:
 sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic.sh
 ```
 
-## PyTorch ImageNet
-
-Run example:
-
-```
-sbatch slurm/mahti-gpu1.sh pytorch-imagenet.sh
-```
-
-Run example with Multi-GPU and AMP:
-
-```bash
-sbatch slurm/mahti-gpu4.sh pytorch-imagenet.sh --amp
-```
-
-## PyTorch ResNet50 Horovod
-
-Based on [Horovod's example script][4].
-
-Run example:
-
-```bash
-sbatch slurm/mahti-gpu8-mpi.sh pytorch-imagenet-hvd.sh
-```
-
 ## PyTorch DDP
 
-[PyTorch benchmark using Distributed Data Parallel for handling multiple
-GPUs](https://github.com/CSCfi/pytorch-ddp-examples).
+PyTorch benchmark using Distributed Data Parallel for handling multiple GPUs.
 
 Run example with 4 GPUs on Puhti using synthetic data:
 
@@ -118,9 +86,36 @@ Run example with 8 GPUs (on 2 nodes) using real ImageNet data:
 sbatch slurm/puhti-gpu8.sh pytorch-ddp.sh --data
 ```
 
+## PyTorch DDP and Horovod with Lightning
+
+Single PyTorch script that uses PyTorch Lightning. We have two separate shell
+scripts for supporting either DDP or Horovod.
+
+Runs with "resnet50" model by default, but also supports "inception_v3" and
+other [models from torchvision.models][2].
+
+
+DDP needs to be run as single task per node:
+
+```bash
+sbatch slurm/puhti-gpu8.sh pytorch-ddp-lightning.sh
+```
+
+Horovod needs to be run as one task per GPU:
+
+```bash
+sbatch slurm/puhti-gpu4-mpi.sh pytorch-horovod-lightning.sh
+```
+
+**FIXME:** multi-node Lightning Horovod still doesn't work properly.
+
+Both scripts supports `--data` option to use real ImageNet data instead of
+synthetic data and `--fp16` to enable 16-bit precision for some operations.
+
+
 ## TensorFlow CNN
 
-Uses [`tf_cnn_benchmarks.py`][5] directly from TensorFlow's GitHub (as a git
+Uses [`tf_cnn_benchmarks.py`][3] directly from TensorFlow's GitHub (as a git
 submodule here).
 
 Run example:
@@ -147,8 +142,6 @@ sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn.sh --data
 ```
 
 
-[1]: https://github.com/CSCfi/pytorch-ddp-examples#benchmark-codes
-[2]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_synthetic_benchmark.py
-[3]: https://pytorch.org/vision/stable/models.html
-[4]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_imagenet_resnet50.py
-[5]: https://github.com/tensorflow/benchmarks/blob/master/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
+[1]: https://github.com/horovod/horovod/blob/master/examples/pytorch/pytorch_synthetic_benchmark.py
+[2]: https://pytorch.org/vision/stable/models.html
+[3]: https://github.com/tensorflow/benchmarks/blob/master/scripts/tf_cnn_benchmarks/tf_cnn_benchmarks.py
