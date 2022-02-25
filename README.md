@@ -127,13 +127,17 @@ synthetic data and `--fp16` to enable 16-bit precision for some operations.
 
 ## PyTorch DeepSpeed
 
-**TODO**
+DeepSpeed example, 4 GPUs with synthetic data:
 
 ```bash
-sbatch slurm/puhti-gpu4.sh pytorch-deepspeed.sh --data
+sbatch slurm/puhti-gpu4.sh pytorch-deepspeed.sh
 ```
 
+8 GPUs, 2 nodes with ImageNet data:
 
+```bash
+sbatch slurm/puhti-gpu8-mpi.sh pytorch-deepspeed.sh --data
+```
 
 ## TensorFlow CNN
 

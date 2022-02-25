@@ -18,6 +18,8 @@ import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from torchvision import models
 
+from pytorch_visionmodel_ddp import dataset_from_datadir
+
 
 def train(args):
     num_epochs = args.epochs
@@ -37,15 +39,7 @@ def train(args):
     
     criterion = nn.CrossEntropyLoss().cuda()
 
-    traindir = os.path.join(args.datadir, 'train')
-    normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                                     std=[0.229, 0.224, 0.225])
-    train_dataset = datasets.ImageFolder(traindir, transforms.Compose([
-        transforms.RandomResizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        normalize,
-    ]))
+    train_dataset = dataset_from_datadir(args.datadir)
 
     model_engine, optimizer, train_loader, __ = deepspeed.initialize(
         args=args, model=model, model_parameters=model.parameters(),
@@ -81,7 +75,7 @@ def main():
                         help='number of total epochs to run')
     parser.add_argument('--model', type=str, default='resnet50',
                         help='model to benchmark')
-    parser.add_argument('--datadir', type=str,
+    parser.add_argument('--datadir', type=str, required=False,
                         help='Data directory')
     parser.add_argument('--local_rank', type=int, default=-1,
                         help='local rank passed from distributed launcher')
