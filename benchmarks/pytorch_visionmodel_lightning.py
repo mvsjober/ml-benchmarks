@@ -72,7 +72,6 @@ def train(args):
     ni = len(train_loader) * args.batchsize
     print("Training completed in: " + str(dur))
     print("Images/sec: {:.4f}".format(ni/dur.total_seconds()))
-    print("len(train_loader) =", len(train_loader))
     
     # trainer.save_checkpoint("benchmark_lightning_model.ckpt")
 

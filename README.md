@@ -33,6 +33,7 @@ tasks).
 | ---------                 | -----------                    | ----               | ---        |
 | PyTorch synthetic         | `pytorch-synthetic.sh`         | synthetic          | Horovod    |
 | PyTorch DDP               | `pytorch-ddp.sh`               | synthetic/ImageNet | DDP        |
+| PyTorch Horovod           | `pytorch-horovod.sh`           | synthetic/ImageNet | Horovod    |
 | PyTorch DDP Lightning     | `pytorch-ddp-lightning.sh`     | synthetic/ImageNet | DDP        |
 | PyTorch Horovod Lightning | `pytorch-horovod-lightning.sh` | synthetic/ImageNet | Horovod    |
 | TensorFlow CNN            | `tensorflow-cnn.sh`            | synthetic/ImageNet | -          |
@@ -70,21 +71,33 @@ Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI:
 sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic.sh
 ```
 
-## PyTorch DDP
+## PyTorch DDP and PyTorch Horovod
 
-PyTorch benchmark using Distributed Data Parallel for handling multiple GPUs.
+PyTorch benchmark using Distributed Data Parallel or Horovod for handling
+multiple GPUs.
 
-Run example with 4 GPUs on Puhti using synthetic data:
+Run example with 4 GPUs on Puhti using synthetic data and DDP:
 
 ```bash
 sbatch slurm/puhti-gpu4.sh pytorch-ddp.sh
 ```
 
-Run example with 8 GPUs (on 2 nodes) using real ImageNet data:
+Run example with 8 GPUs (on 2 nodes) using real ImageNet data and DDP:
 
 ```bash
 sbatch slurm/puhti-gpu8.sh pytorch-ddp.sh --data
 ```
+
+Run example with 8 GPUs (2 nodes) using Horovod:
+
+```bash
+sbatch slurm/puhti-gpu8-mpi.sh pytorch-horovod.sh
+```
+
+**NOTE:** Using DataLoader with Horovod still has some problems on Puhti when
+using multiple processes. It seems to freeze at random times. This is still
+being investigated
+
 
 ## PyTorch DDP and Horovod with Lightning
 
@@ -111,6 +124,10 @@ sbatch slurm/puhti-gpu4-mpi.sh pytorch-horovod-lightning.sh
 
 Both scripts supports `--data` option to use real ImageNet data instead of
 synthetic data and `--fp16` to enable 16-bit precision for some operations.
+
+## PyTorch DeepSpeed
+
+**TODO**
 
 
 ## TensorFlow CNN

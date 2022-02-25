@@ -16,12 +16,38 @@ import torchvision.datasets as datasets
 from torchvision import models
 
 
-def dataset_from_datadir(datadir):
+class SyntheticData(torch.utils.data.Dataset):
+    def __init__(self,
+                 size = 1281184,  # like ImageNet
+                 image_size = (3, 224, 224),
+                 num_classes = 1000,
+                 transform = None):
+        super(SyntheticData, self).__init__()
+        self.size = size
+        self.image_size = image_size
+        self.num_classes = num_classes
+        self.transform = transform
+
+    def __getitem__(self, index):
+        img = torch.randn(*self.image_size)
+        target = torch.randint(0, self.num_classes, size=(1,), dtype=torch.long)[0]
+
+        if self.transform is not None:
+            img = self.transform(img)
+
+        return img, target.item()
+            
+    def __len__(self):
+        return self.size
+
+
+def dataset_from_datadir(datadir, verbose=True):
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
     if datadir is not None:
         traindir = os.path.join(datadir, 'train')
-        print('Reading training data from:', traindir)
+        if verbose:
+            print('Reading training data from:', traindir)
         return datasets.ImageFolder(traindir, transforms.Compose([
             transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
@@ -29,16 +55,24 @@ def dataset_from_datadir(datadir):
             normalize,
         ]))
 
-    print('No --datadir argument given, using fake data for training...')
-    return datasets.FakeData(size=1281184,  # like ImageNet
-                             image_size=(3, 256, 256),
-                             num_classes=1000,
-                             transform=transforms.Compose([
-                                 transforms.RandomResizedCrop(224),
-                                 transforms.RandomHorizontalFlip(),
-                                 transforms.ToTensor(),
-                                 normalize,
-                             ]))
+    if verbose:
+        print('No --datadir argument given, using fake data for training...')
+    return SyntheticData()
+# transform=normalizetransforms.Compose([
+#         transforms.RandomResizedCrop(224),
+#         transforms.RandomHorizontalFlip(),
+#         # transforms.ToTensor(),
+#         normalize,
+#     ]))
+    # return datasets.FakeData(size=1281184,  # like ImageNet
+    #                          image_size=(3, 256, 256),
+    #                          num_classes=1000,
+    #                          transform=transforms.Compose([
+    #                              transforms.RandomResizedCrop(224),
+    #                              transforms.RandomHorizontalFlip(),
+    #                              transforms.ToTensor(),
+    #                              normalize,
+    #                          ]))
 
 
 def train(args):
