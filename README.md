@@ -129,6 +129,11 @@ synthetic data and `--fp16` to enable 16-bit precision for some operations.
 
 **TODO**
 
+```bash
+sbatch slurm/puhti-gpu4.sh pytorch-deepspeed.sh --data
+```
+
+
 
 ## TensorFlow CNN
 
