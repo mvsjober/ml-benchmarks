@@ -6,6 +6,12 @@ IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
 SCRIPT_OPTS="--strategy=ddp"
 
+if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
+    echo "ERROR: this script needs to be run as one task per node."
+    echo "SLURM_NNODES = $SLURM_NNODES != SLURM_NTASKS = $SLURM_NTASKS"
+    exit 1
+fi
+
 if [ "$1" == "--data" ]; then
     shift
     (set -x
