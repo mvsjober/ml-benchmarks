@@ -141,7 +141,7 @@ def train(args):
                 print(f'Epoch [{epoch+1}/{args.epochs}], Step [{i+1}/{total_step}], '
                       f'Loss: {loss.item():.4f}, '
                       f'Images/sec: {last_images*world_size/last_secs:.2f} '
-                      '(last {args.print_steps} steps)')
+                      f'(last {args.print_steps} steps)')
 
                 last_start = now
                 last_images = 0
