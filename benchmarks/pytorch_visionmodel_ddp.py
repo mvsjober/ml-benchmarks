@@ -10,6 +10,7 @@ import torch.nn as nn
 from torch.utils.data.distributed import DistributedSampler
 from torch.nn.parallel import DistributedDataParallel
 from torch.utils.data import DataLoader
+from torch.profiler import profile, ProfilerActivity
 
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
@@ -18,10 +19,10 @@ from torchvision import models
 
 class SyntheticData(torch.utils.data.Dataset):
     def __init__(self,
-                 size = 1281184,  # like ImageNet
-                 image_size = (3, 224, 224),
-                 num_classes = 1000,
-                 transform = None):
+                 size=1281184,  # like ImageNet
+                 image_size=(3, 224, 224),
+                 num_classes=1000,
+                 transform=None):
         super(SyntheticData, self).__init__()
         self.size = size
         self.image_size = image_size
@@ -36,7 +37,7 @@ class SyntheticData(torch.utils.data.Dataset):
             img = self.transform(img)
 
         return img, target.item()
-            
+
     def __len__(self):
         return self.size
 
@@ -58,26 +59,12 @@ def dataset_from_datadir(datadir, verbose=True):
     if verbose:
         print('No --datadir argument given, using fake data for training...')
     return SyntheticData()
-# transform=normalizetransforms.Compose([
-#         transforms.RandomResizedCrop(224),
-#         transforms.RandomHorizontalFlip(),
-#         # transforms.ToTensor(),
-#         normalize,
-#     ]))
-    # return datasets.FakeData(size=1281184,  # like ImageNet
-    #                          image_size=(3, 256, 256),
-    #                          num_classes=1000,
-    #                          transform=transforms.Compose([
-    #                              transforms.RandomResizedCrop(224),
-    #                              transforms.RandomHorizontalFlip(),
-    #                              transforms.ToTensor(),
-    #                              normalize,
-    #                          ]))
 
 
 def train(args):
     local_rank = int(os.environ['LOCAL_RANK'])
-    if local_rank == 0:
+    verbose = local_rank == 0
+    if verbose:
         print('Using PyTorch version:', torch.__version__)
         print(torch.__config__.show())
 
@@ -88,8 +75,8 @@ def train(args):
     torch.cuda.set_device(local_rank)
 
     # Set up standard model.
-    if local_rank == 0:
-        print('Using {} model'.format(args.model))
+    if verbose:
+        print(f'Using {args.model} model')
     model = getattr(models, args.model)()
     model = model.cuda()
 
@@ -98,14 +85,36 @@ def train(args):
 
     model = DistributedDataParallel(model, device_ids=[local_rank])
 
-    train_dataset = dataset_from_datadir(args.datadir)
+    train_dataset = dataset_from_datadir(args.datadir, verbose=verbose)
     train_sampler = DistributedSampler(train_dataset)
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batchsize,
                               shuffle=False, num_workers=args.workers,
                               pin_memory=True, sampler=train_sampler)
 
-    start = datetime.now()
+    if args.profiler:
+        th = None
+        if args.profiler_format == 'tb':
+            th = torch.profiler.tensorboard_trace_handler('./log/profiler')
+        prof = profile(
+            schedule=torch.profiler.schedule(
+                wait=1,     # number of steps steps not active
+                warmup=1,   # warmup steps (tracing, but results discarded)
+                active=10,  # tracing steps
+                repeat=1),  # repeat procedure this many times
+            on_trace_ready=th,
+            activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
+            record_shapes=True,
+            with_stack=True
+        )
+        prof.start()
+
     total_step = args.steps if args.steps is not None else len(train_loader)
+
+    start = datetime.now()
+    last_start = start
+    last_images = 0
+    tot_images = 0
+
     for epoch in range(args.epochs):
         for i, (images, labels) in enumerate(train_loader):
             images = images.cuda(non_blocking=True)
@@ -117,24 +126,42 @@ def train(args):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            if (i + 1) % 100 == 0 and local_rank == 0:
-                num_images = i * args.batchsize * world_size
-                tot_secs = (datetime.now()-start).total_seconds()
+            
+            if args.profiler:
+                prof.step()
 
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Images/sec: {:.2f}'.
-                      format(epoch + 1,
-                             args.epochs,
-                             i + 1,
-                             total_step,
-                             loss.item(),
-                             num_images/tot_secs))
+            li = len(images)
+            last_images += li
+            tot_images += li
+
+            if (i + 1) % args.print_steps == 0 and verbose:
+                now = datetime.now()
+                last_secs = (now-last_start).total_seconds()
+
+                print(f'Epoch [{epoch+1}/{args.epochs}], Step [{i+1}/{total_step}], '
+                      f'Loss: {loss.item():.4f}, '
+                      f'Images/sec: {last_images*world_size/last_secs:.2f} '
+                      '(last {args.print_steps} steps)')
+
+                last_start = now
+                last_images = 0
+
             if args.steps is not None and i >= args.steps:
                 break
-    if local_rank == 0:
+
+    if args.profiler:
+        if args.profiler_format == 'json' and verbose:
+            trace_datetime = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+            trace_fname = f"profiler-trace-{trace_datetime}.json"
+            print(f'Writing profiler trace to {trace_fname}')
+            prof.export_chrome_trace(trace_fname)
+
+        prof.stop()
+
+    if verbose:
         dur = datetime.now() - start
-        ni = total_step * args.batchsize * world_size
-        print("Training completed in: " + str(dur))
-        print("Images/sec: {:.4f}".format(ni/dur.total_seconds()))
+        print(f"Training completed in: {dur}")
+        print(f"Images/sec: {tot_images*world_size/dur.total_seconds():.2f} (average)")
 
 
 def main():
@@ -151,6 +178,10 @@ def main():
                         help='Number of data loader workers')
     parser.add_argument('--steps', type=int, required=False,
                         help='Maxium number of training steps')
+    parser.add_argument('--profiler', action='store_true')
+    parser.add_argument('--profiler-format', type=str,
+                        choices=['tb', 'json'], default='tb')
+    parser.add_argument('--print-steps', type=int, default=100)
     args = parser.parse_args()
 
     train(args)
