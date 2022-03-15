@@ -94,7 +94,7 @@ def train(args):
     if args.profiler:
         th = None
         if args.profiler_format == 'tb':
-            th = torch.profiler.tensorboard_trace_handler('./log/profiler')
+            th = torch.profiler.tensorboard_trace_handler('./logs/profiler')
         prof = profile(
             schedule=torch.profiler.schedule(
                 wait=1,     # number of steps steps not active
