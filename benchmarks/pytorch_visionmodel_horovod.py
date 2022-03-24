@@ -67,7 +67,7 @@ def train(args):
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batchsize,
                               num_workers=args.workers, shuffle=False,
                               pin_memory=True, sampler=train_sampler,
-                              timeout=10)
+                              timeout=10, multiprocessing_context='forkserver')
 
     hvd.broadcast_parameters(model.state_dict(), root_rank=0)
     hvd.broadcast_optimizer_state(optimizer, root_rank=0)
