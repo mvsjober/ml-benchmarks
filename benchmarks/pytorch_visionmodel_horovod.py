@@ -65,14 +65,15 @@ def train(args):
                                        num_replicas=hvd.size(),
                                        rank=hvd.rank())
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batchsize,
-                              num_workers=args.workers, shuffle=False,
-                              pin_memory=True, sampler=train_sampler,
-                              timeout=10, multiprocessing_context='forkserver')
+                              shuffle=False, num_workers=args.workers,
+                              pin_memory=False, sampler=train_sampler,
+                              multiprocessing_context='forkserver')
 
     hvd.broadcast_parameters(model.state_dict(), root_rank=0)
     hvd.broadcast_optimizer_state(optimizer, root_rank=0)
 
     start = datetime.now()
+    num_images = 0
     if verbose == 0:
         print("Starting training at", start, flush=True)
 
@@ -89,8 +90,9 @@ def train(args):
             loss.backward()
             optimizer.step()
 
+            num_images += args.batchsize * hvd.size()
+
             if (i + 1) % 100 == 0 and verbose:
-                num_images = i * args.batchsize * hvd.size()
                 tot_secs = (datetime.now()-start).total_seconds()
 
                 print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Images/sec: {:.2f} [{}]'.
