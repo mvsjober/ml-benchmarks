@@ -110,10 +110,14 @@ def train(args):
 
     total_step = args.steps if args.steps is not None else len(train_loader)
 
-    start = datetime.now()
-    last_start = start
+    # For each block of printed steps
+    last_start = datetime.now()
     last_images = 0
-    tot_images = 0
+
+    # For final average
+    avg_images = 0
+    avg_start = None
+    tot_steps = 0
 
     for epoch in range(args.epochs):
         for i, (images, labels) in enumerate(train_loader):
@@ -126,13 +130,17 @@ def train(args):
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
-            
             if args.profiler:
                 prof.step()
 
             li = len(images)
             last_images += li
-            tot_images += li
+
+            tot_steps += 1
+            if tot_steps == args.warmup_steps:
+                avg_start = datetime.now()
+            elif tot_steps > args.warmup_steps:
+                avg_images += li
 
             if (i + 1) % args.print_steps == 0 and verbose:
                 now = datetime.now()
@@ -159,9 +167,13 @@ def train(args):
         prof.stop()
 
     if verbose:
-        dur = datetime.now() - start
-        print(f"Training completed in: {dur}")
-        print(f"Images/sec: {tot_images*world_size/dur.total_seconds():.2f} (average)")
+        if avg_start is None:
+            print("WARNING: stopped before warmup steps done, not printing stats.")
+        else:
+            dur = datetime.now() - avg_start
+            print(f"Training completed in: {dur}")
+            print(f"Images/sec: {avg_images*world_size/dur.total_seconds():.2f} "
+                  f"(average, skipping {args.warmup_steps} warmup steps)")
 
 
 def main():
@@ -182,6 +194,8 @@ def main():
     parser.add_argument('--profiler-format', type=str,
                         choices=['tb', 'json'], default='tb')
     parser.add_argument('--print-steps', type=int, default=100)
+    parser.add_argument('--warmup-steps', type=int, default=10,
+                        help='Number of initial steps to ignore in average')
     args = parser.parse_args()
 
     train(args)

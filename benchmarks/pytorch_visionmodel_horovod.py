@@ -1,8 +1,6 @@
 from datetime import datetime
 import argparse
-import os
 import torch
-import torch.distributed as dist
 import torch.nn as nn
 import torch.backends.cudnn as cudnn
 from torch.utils.data.distributed import DistributedSampler
@@ -11,8 +9,6 @@ from torch.utils.data import DataLoader
 import horovod.torch as hvd
 from horovod import __version__ as hvd_version
 
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 from torchvision import models
 
 from pytorch_visionmodel_ddp import dataset_from_datadir
@@ -39,9 +35,9 @@ def train(args):
         print(torch.__config__.show())
 
     cudnn.benchmark = True
-        
-    #torch.manual_seed(0)
+
     torch.cuda.set_device(hvd.local_rank())
+    world_size = hvd.size()
 
     # Set up standard model.
     if verbose:
@@ -49,9 +45,9 @@ def train(args):
     model = getattr(models, args.model)()
     model = model.cuda()
 
-    import torch.multiprocessing as mp
-    # # assert "forkserver" in mp.get_all_start_methods()
-    mp.set_start_method("forkserver")
+    # import torch.multiprocessing as mp
+    # # # assert "forkserver" in mp.get_all_start_methods()
+    # mp.set_start_method("forkserver")
 
     lr_scaler = hvd.size()
 
@@ -72,12 +68,17 @@ def train(args):
     hvd.broadcast_parameters(model.state_dict(), root_rank=0)
     hvd.broadcast_optimizer_state(optimizer, root_rank=0)
 
-    start = datetime.now()
-    num_images = 0
-    if verbose == 0:
-        print("Starting training at", start, flush=True)
-
     total_step = args.steps if args.steps is not None else len(train_loader)
+
+    # For each block of printed steps
+    last_start = datetime.now()
+    last_images = 0
+
+    # For final average
+    avg_images = 0
+    avg_start = None
+    tot_steps = 0
+
     for epoch in range(args.epochs):
         for i, (images, labels) in enumerate(train_loader):
             images = images.cuda(non_blocking=True)
@@ -90,25 +91,34 @@ def train(args):
             loss.backward()
             optimizer.step()
 
-            num_images += args.batchsize * hvd.size()
+            li = len(images)
+            last_images += li
 
-            if (i + 1) % 100 == 0 and verbose:
-                tot_secs = (datetime.now()-start).total_seconds()
+            tot_steps += 1
+            if tot_steps == args.warmup_steps:
+                avg_start = datetime.now()
+            elif tot_steps > args.warmup_steps:
+                avg_images += li
 
-                print('Epoch [{}/{}], Step [{}/{}], Loss: {:.4f}, Images/sec: {:.2f} [{}]'.
-                      format(epoch + 1,
-                             args.epochs,
-                             i + 1,
-                             total_step,
-                             loss.item(),
-                             num_images/tot_secs, datetime.now()), flush=True)
+            if (i + 1) % args.print_steps == 0 and verbose:
+                now = datetime.now()
+                last_secs = (now-last_start).total_seconds()
+
+                print(f'Epoch [{epoch+1}/{args.epochs}], Step [{i+1}/{total_step}], '
+                      f'Loss: {loss.item():.4f}, '
+                      f'Images/sec: {last_images*world_size/last_secs:.2f} '
+                      f'(last {args.print_steps} steps)')
+
+                last_start = now
+                last_images = 0
+
             if args.steps is not None and i >= args.steps:
                 break
     if verbose:
-        dur = datetime.now() - start
-        ni = total_step * args.batchsize * hvd.size()
-        print("Training completed in: " + str(dur))
-        print("Images/sec: {:.4f}".format(ni/dur.total_seconds()))
+        dur = datetime.now() - avg_start
+        print(f"Training completed in: {dur}")
+        print(f"Images/sec: {avg_images*world_size/dur.total_seconds():.2f} "
+              f"(average, skipping {args.warmup_steps} warmup steps)")
 
 
 def main():
@@ -125,6 +135,9 @@ def main():
                         help='Number of data loader workers')
     parser.add_argument('--steps', type=int, required=False,
                         help='Maxium number of training steps')
+    parser.add_argument('--print-steps', type=int, default=100)
+    parser.add_argument('--warmup-steps', type=int, default=10,
+                        help='Number of initial steps to ignore in average')
     args = parser.parse_args()
 
     train(args)
