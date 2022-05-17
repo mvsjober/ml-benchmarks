@@ -5,14 +5,20 @@ SBATCH_TEST="$SBATCH --account=project_2001659 --partition=test -t 5"
 
 if [[ $HOSTNAME == *mahti.csc.fi ]]; then
     CLUSTER="mahti"
+    GPUSMALL="gpusmall"
+    GPUMEDIUM="gpumedium"
 elif [[ $HOSTNAME == puhti-login* ]]; then
     CLUSTER="puhti"
+    GPUSMALL="gpu"
+    GPUMEDIUM="gpu"
 elif [[ $HOSTNAME == uan* ]]; then
     CLUSTER="lumi"
 else
     echo "ERROR: cannot determine cluster from hostname: $HOSTNAME"
     exit 1
 fi
+
+echo "Detected $CLUSTER cluster"
 
 JIDS=""
 
@@ -25,39 +31,39 @@ do_sbatch () {
 #### PyTorch DDP - syntethic data
 
 # PyTorch DDP, single GPU
-do_sbatch --partition=gpusmall slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
 JID_DDP_GPU1=$JID
 
 # PyTorch DDP, 4 GPU
-do_sbatch --partition=gpumedium slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh
 JID_DDP_GPU4=$JID
 
 # PyTorch DDP multi-node, 8 GPU
-do_sbatch slurm/${CLUSTER}-gpu8.sh pytorch-ddp.sh
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8.sh pytorch-ddp.sh
 JID_DDP_GPU8=$JID
 
 #### PyTorch DDP - real data
 
 # PyTorch DDP, single GPU, data
-do_sbatch --partition=gpusmall slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --data --steps=1000
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --data --steps=1000
 JID_DDP_DATA_GPU1=$JID
 
 # PyTorch DDP, 4 GPU, data
-do_sbatch --partition=gpumedium slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh --data
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh --data
 JID_DDP_DATA_GPU4=$JID
 
 # PyTorch DDP multi-node, 8 GPU, data
-do_sbatch slurm/${CLUSTER}-gpu8.sh pytorch-ddp.sh --data
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8.sh pytorch-ddp.sh --data
 JID_DDP_DATA_GPU8=$JID
 
 #### PyTorch Horovod
 
 # PyTorch Horovod multi-node, 8 GPU with MPI
-do_sbatch slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh
 JID_HVD_GPU8=$JID
 
 # PyTorch Horovod multi-node, 8 GPU with MPI
-do_sbatch slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh --data
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh --data
 JID_HVD_DATA_GPU8=$JID
 
 #### Summary
@@ -69,8 +75,8 @@ print_result () {
     JID=\$2
     echo -n "\$DESC | "
     LOGFN=\$(ls -1 logs/slurm-*-\$JID.out)
-    RES=\$(grep '^Images/sec' \$LOGFN | cut -d ' ' -f 2)
-    if [ -z \$RES ]; then
+    RES=\$(grep '^Images/sec' \$LOGFN | tail -n1 | cut -d ' ' -f 2)
+    if [ -z "\$RES" ]; then
        echo "ERROR IN \$LOGFN"
     else
        echo \$RES

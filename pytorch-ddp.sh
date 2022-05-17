@@ -4,7 +4,7 @@ export NCCL_DEBUG=INFO
 SCRIPT="benchmarks/pytorch_visionmodel_ddp.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
-DIST_OPTS="--standalone"
+DIST_OPTS="--standalone --master_port 0"
 SCRIPT_OPTS=""
 
 if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
