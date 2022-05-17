@@ -31,11 +31,11 @@ do_sbatch () {
 #### PyTorch DDP - syntethic data
 
 # PyTorch DDP, single GPU
-do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
+do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
 JID_DDP_GPU1=$JID
 
 # PyTorch DDP, 4 GPU
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh
 JID_DDP_GPU4=$JID
 
 # PyTorch DDP multi-node, 8 GPU
@@ -49,7 +49,7 @@ do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --data -
 JID_DDP_DATA_GPU1=$JID
 
 # PyTorch DDP, 4 GPU, data
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh --data
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh --data
 JID_DDP_DATA_GPU4=$JID
 
 # PyTorch DDP multi-node, 8 GPU, data
