@@ -9,6 +9,12 @@ IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
 SCRIPT_OPTS=""
 
+if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
+then
+    echo "WARNING: no pytorch module loaded, loading default module"
+    module load pytorch
+fi
+
 if [ $(( $NUM_GPUS * $SLURM_NNODES )) -ne $SLURM_NTASKS ]; then
     echo "ERROR: this script needs to be run as one task per GPU. Try using slurm/*-mpi.sh scripts."
     echo "NUM_GPUS * SLURM_NNODES = $NUM_GPUS * $SLURM_NNODES != SLURM_NTASKS = $SLURM_NTASKS"
