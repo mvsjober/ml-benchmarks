@@ -86,6 +86,7 @@ do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh
 JID_HVD_DATA_GPU8=$JID
 
 #### Summary
+
 JID_SUMMARY=$($SBATCH_TEST --dependency=afterany$JIDS --job-name="results" --output="%x-%j.out" <<EOF
 #!/bin/bash
 
@@ -93,7 +94,8 @@ print_result () {
     DESC=\$1
     NGPU=\$2
     JID=\$3
-    echo -n "\$| DESC | PyTorch $PYTORCH_VERSION | $CLUSTER    | \$NGPU    | "
+    DATENOW=\$(date +%F)
+    echo -n "| \$DESC | PyTorch $PYTORCH_VERSION | $CLUSTER    | \$NGPU    | \$DATENOW | "
     LOGFN=\$(ls -1 logs/slurm-*-\$JID.out)
     RES=\$(grep '^Images/sec' \$LOGFN | tail -n1 | cut -d ' ' -f 2)
     if [ -z "\$RES" ]; then
@@ -103,19 +105,19 @@ print_result () {
     fi
 }
 
-print_result "PyTorch DDP, GPU1, synthetic" $JID_DDP_GPU1
-print_result "PyTorch DDP, GPU4, synthetic" $JID_DDP_GPU4
-print_result "PyTorch DDP, GPU8, synthetic" $JID_DDP_GPU8
+print_result "DDP, synthetic" 1 $JID_DDP_GPU1
+print_result "DDP, synthetic" 4 $JID_DDP_GPU4
+print_result "DDP, synthetic" 8 $JID_DDP_GPU8
 
-print_result "PyTorch DDP, GPU1, Imagenet data" $JID_DDP_DATA_GPU1
-print_result "PyTorch DDP, GPU4, Imagenet data" $JID_DDP_DATA_GPU4
-print_result "PyTorch DDP, GPU8, Imagenet data" $JID_DDP_DATA_GPU8
+print_result "DDP, Imagenet data" 1 $JID_DDP_DATA_GPU1
+print_result "DDP, Imagenet data" 4 $JID_DDP_DATA_GPU4
+print_result "DDP, Imagenet data" 8 $JID_DDP_DATA_GPU8
 
 print_result "DeepSpeed, synthetic data" 4 $JID_DEEPSPEED_GPU4
 print_result "DeepSpeed, synthetic data" 8 $JID_DEEPSPEED_GPU8
 
-print_result "PyTorch Horovod, GPU8, synthetic" $JID_HVD_GPU8
-print_result "PyTorch Horovod, GPU8, Imagenet data" $JID_HVD_DATA_GPU8
+print_result "Horovod, synthetic" 8 $JID_HVD_GPU8
+print_result "Horovod, Imagenet data" 8 $JID_HVD_DATA_GPU8
 
 EOF
 )
