@@ -10,3 +10,13 @@
 | DeepSpeed, synthetic data | PyTorch 1.11.0+cu115 | mahti   | 8    | 2022-05-18 | 5484.88 |
 | Horovod, synthetic        | PyTorch 1.11.0+cu115 | mahti   | 8    | 2022-05-18 | 4967.57 |
 | Horovod, Imagenet data    | PyTorch 1.11.0+cu115 | mahti   | 8    | 2022-05-18 | 4984.15 |
+| DDP, synthetic            | PyTorch 1.11.0+cu113 | puhti   | 1    | 2022-05-18 | 325.95  |
+| DDP, synthetic            | PyTorch 1.11.0+cu113 | puhti   | 4    | 2022-05-18 | 1217.10 |
+| DDP, synthetic            | PyTorch 1.11.0+cu113 | puhti   | 8    | 2022-05-18 | 2420.71 |
+| DDP, Imagenet data        | PyTorch 1.11.0+cu113 | puhti   | 1    | 2022-05-18 | 328.21  |
+| DDP, Imagenet data        | PyTorch 1.11.0+cu113 | puhti   | 4    | 2022-05-18 | 1217.30 |
+| DDP, Imagenet data        | PyTorch 1.11.0+cu113 | puhti   | 8    | 2022-05-18 | 2431.23 |
+| DeepSpeed, synthetic data | PyTorch 1.11.0+cu113 | puhti   | 4    | 2022-05-18 | 1255.24 |
+| DeepSpeed, synthetic data | PyTorch 1.11.0+cu113 | puhti   | 8    | 2022-05-18 | 2420.89 |
+| Horovod, synthetic        | PyTorch 1.11.0+cu113 | puhti   | 8    | 2022-05-18 | 2220.04 |
+| Horovod, Imagenet data    | PyTorch 1.11.0+cu113 | puhti   | 8    | 2022-05-18 | ERROR   |

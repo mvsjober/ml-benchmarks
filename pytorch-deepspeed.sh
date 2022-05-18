@@ -6,6 +6,12 @@ IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
 SCRIPT_OPTS="--deepspeed --deepspeed_config benchmarks/ds_config_benchmark.json"
 
+if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
+then
+    echo "WARNING: no pytorch module loaded, loading default module"
+    module load pytorch
+fi
+
 if [ "$1" == "--data" ]; then
     shift
     (set -x
