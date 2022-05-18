@@ -99,7 +99,7 @@ print_result () {
     if [ -z "\$RES" ]; then
        echo "ERROR IN \$LOGFN"
     else
-       echo "\$RES |
+       echo "\$RES |"
     fi
 }
 
