@@ -154,7 +154,7 @@ def train(args):
                 last_start = now
                 last_images = 0
 
-            if args.steps is not None and i >= args.steps:
+            if args.steps is not None and tot_steps >= args.steps:
                 break
 
     if args.profiler:
