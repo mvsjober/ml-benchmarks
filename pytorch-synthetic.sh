@@ -15,6 +15,7 @@ else
     SCRIPT="benchmarks/pytorch_synthetic_horovod_benchmark.py"
 fi
 
+echo "SING_IMAGE=$SING_IMAGE"
 (set -x
 srun python3 $SCRIPT $ARGS $*
 )
