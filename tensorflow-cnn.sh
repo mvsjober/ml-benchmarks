@@ -14,6 +14,8 @@ fi
 
 if [ "$SLURM_NTASKS" -gt 1 ]; then
     ARGS="$ARGS --variable_update horovod --horovod_device gpu"
+else
+    ARGS="$ARGS --num_gpus=$NUM_GPUS"
 fi
 
 (set -x

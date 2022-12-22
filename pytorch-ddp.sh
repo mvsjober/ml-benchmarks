@@ -7,11 +7,13 @@ IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 DIST_OPTS="--standalone --master_port 0"
 SCRIPT_OPTS=""
 
-if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
-then
-    echo "WARNING: no pytorch module loaded, loading default module"
-    module load pytorch
-fi
+#if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
+#then
+#    echo "WARNING: no pytorch module loaded, loading default module"
+#    module load pytorch
+#fi
+
+which python3
 
 if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
     echo "ERROR: this script needs to be run as one task per node."
