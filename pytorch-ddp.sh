@@ -5,7 +5,7 @@ SCRIPT="benchmarks/pytorch_visionmodel_ddp.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
 DIST_OPTS="--standalone --master_port 0"
-SCRIPT_OPTS=""
+SCRIPT_OPTS="--warmup-steps 100"
 
 #if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
 #then
