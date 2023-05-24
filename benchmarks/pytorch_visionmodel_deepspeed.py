@@ -9,6 +9,10 @@ from torchvision import models
 
 from pytorch_visionmodel_ddp import dataset_from_datadir
 
+import collections.abc
+
+collections.Mapping = collections.abc.Mapping
+collections.Sequence = collections.abc.Sequence
 
 def train(args):
     num_epochs = args.epochs
