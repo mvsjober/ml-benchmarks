@@ -6,9 +6,9 @@ IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
 SCRIPT_OPTS="--strategy=ddp"
 
-if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
-    echo "ERROR: this script needs to be run as one task per node."
-    echo "SLURM_NNODES = $SLURM_NNODES != SLURM_NTASKS = $SLURM_NTASKS"
+if [ $(( $NUM_GPUS * $SLURM_NNODES )) -ne $SLURM_NTASKS ]; then
+    echo "ERROR: this script needs to be run as one task per GPU. Try using slurm/*-mpi.sh scripts."
+    echo "NUM_GPUS * SLURM_NNODES = $NUM_GPUS * $SLURM_NNODES != SLURM_NTASKS = $SLURM_NTASKS"
     exit 1
 fi
 
@@ -21,24 +21,8 @@ if [ "$1" == "--data" ]; then
     SCRIPT_OPTS="--datadir ${LOCAL_SCRATCH}/ilsvrc2012-torch $SCRIPT_OPTS"
 fi
 
-if [ "$SLURM_NNODES" -gt 1 ]; then
-    export RDZV_HOST=$(hostname)
-    export RDZV_PORT=29400
-    DIST_OPTS="--rdzv_id=$SLURM_JOB_ID --rdzv_backend=c10d --rdzv_endpoint=$RDZV_HOST:$RDZV_PORT"
+(set -x
+ srun python3 $SCRIPT --gpus=$NUM_GPUS --nodes=$SLURM_NNODES $SCRIPT_OPTS $*
+)
 
-    (set -x
-     srun python3 -m torch.distributed.run \
-          --nnodes=$SLURM_NNODES \
-          --nproc_per_node=$NUM_GPUS \
-          --rdzv_id=$SLURM_JOB_ID \
-          --rdzv_backend=c10d \
-          --rdzv_endpoint="$RDZV_HOST:$RDZV_PORT" \
-          $SCRIPT --gpus=$NUM_GPUS --nodes=$SLURM_NNODES \
-          $SCRIPT_OPTS $*
-    )
-else
-    (set -x
-     srun python3 $SCRIPT --gpus=$NUM_GPUS --nodes=1 $SCRIPT_OPTS $*
-    )
-fi
 

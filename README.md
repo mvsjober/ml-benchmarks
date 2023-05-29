@@ -99,31 +99,22 @@ using multiple processes. It seems to freeze at random times. This is still
 being investigated
 
 
-## PyTorch DDP and Horovod with Lightning
+## PyTorch DDP with Lightning
 
-Single PyTorch script that uses PyTorch Lightning. We have two separate shell
-scripts for supporting either DDP or Horovod.
+PyTorch Lightning example using DDP. Runs with "resnet50" model by
+default, but also supports "inception_v3" and other [models from
+torchvision.models][2].
 
-Runs with "resnet50" model by default, but also supports "inception_v3" and
-other [models from torchvision.models][2].
-
-
-DDP needs to be run as single task per node:
+DDP (as of PyTorch 1.13) needs to be run as single task per GPU:
 
 ```bash
-sbatch slurm/puhti-gpu8.sh pytorch-ddp-lightning.sh
+sbatch slurm/puhti-gpu4-mpi.sh pytorch-ddp-lightning.sh  # single node
+sbatch slurm/puhti-gpu8-mpi.sh pytorch-ddp-lightning.sh  # two nodes
 ```
 
-Horovod needs to be run as one task per GPU:
-
-```bash
-sbatch slurm/puhti-gpu4-mpi.sh pytorch-horovod-lightning.sh
-```
-
-**FIXME:** multi-node Lightning Horovod still doesn't work properly.
-
-Both scripts supports `--data` option to use real ImageNet data instead of
-synthetic data and `--fp16` to enable 16-bit precision for some operations.
+The scripts supports `--data` option to use real ImageNet data instead
+of synthetic data and `--fp16` to enable 16-bit precision for some
+operations.
 
 ## PyTorch DeepSpeed
 

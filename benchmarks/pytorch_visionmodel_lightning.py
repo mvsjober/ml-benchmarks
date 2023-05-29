@@ -8,8 +8,7 @@ import torch
 import torch.nn.functional as F
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
-# from pytorch_lightning.strategies import DDPStrategy
-from pytorch_lightning.plugins import DDPPlugin
+
 from pytorch_visionmodel_ddp import dataset_from_datadir
 
 
@@ -45,15 +44,11 @@ def train(args):
     precision = 16 if args.fp16 else 32
     
     if args.strategy == 'ddp':
-        # strategy = 'ddp'
-        strategy = DDPPlugin(find_unused_parameters=False)
-        # strategy = DDPStrategy(find_unused_parameters=False))
-
-        trainer = pl.Trainer(gpus=args.gpus,
+        trainer = pl.Trainer(devices=args.gpus,
                              num_nodes=args.nodes,
                              max_epochs=args.epochs,
                              accelerator='gpu',
-                             strategy=strategy,
+                             strategy='ddp',
                              precision=precision)
     elif args.strategy == 'horovod':
         trainer = pl.Trainer(max_epochs=args.epochs,
