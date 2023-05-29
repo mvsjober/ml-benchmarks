@@ -22,7 +22,7 @@ if [ "$1" == "--data" ]; then
 fi
 
 (set -x
- srun python3 $SCRIPT --gpus=$NUM_GPUS --nodes=$SLURM_NNODES $SCRIPT_OPTS $*
+ srun python3 $SCRIPT --gpus=$NUM_GPUS --nodes=$SLURM_NNODES --workers=$SLURM_CPUS_PER_TASK $SCRIPT_OPTS $*
 )
 
 
