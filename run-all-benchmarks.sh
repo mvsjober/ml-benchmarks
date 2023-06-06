@@ -7,12 +7,21 @@ if [[ $HOSTNAME == *mahti.csc.fi ]]; then
     CLUSTER="mahti"
     GPUSMALL="gpusmall"
     GPUMEDIUM="gpumedium"
+    FULLNODE="4"
+    TWONODES="8"
 elif [[ $HOSTNAME == puhti-login* ]]; then
     CLUSTER="puhti"
     GPUSMALL="gpu"
     GPUMEDIUM="gpu"
+    FULLNODE="4"
+    TWONODES="8"
 elif [[ $HOSTNAME == uan* ]]; then
     CLUSTER="lumi"
+    GPUSMALL="small-g"
+    GPUMEDIUM="standard-g"
+    FULLNODE="8"
+    TWONODES="16"
+    SBATCH_TEST="$SBATCH --account=project_462000007 --partition=small -t 5"
 else
     echo "ERROR: cannot determine cluster from hostname: $HOSTNAME"
     exit 1
@@ -43,14 +52,15 @@ echo "PyTorch version $PYTORCH_VERSION"
 do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
 JID_DDP_GPU1=$JID
 
-# PyTorch DDP, 4 GPU
-do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh
-JID_DDP_GPU4=$JID
+# PyTorch DDP, full node
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-ddp.sh
+JID_DDP_FULLNODE=$JID
 
-# PyTorch DDP multi-node, 8 GPU
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8.sh pytorch-ddp.sh
-JID_DDP_GPU8=$JID
+# PyTorch DDP multi-node, two nodes
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh
+JID_DDP_TWONODES=$JID
 
+if [ "$CLUSTER" != "lumi" ]; then
 #### PyTorch DDP - real data
 
 # PyTorch DDP, single GPU, data
@@ -58,32 +68,34 @@ do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --data -
 JID_DDP_DATA_GPU1=$JID
 
 # PyTorch DDP, 4 GPU, data
-do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu4.sh pytorch-ddp.sh --data
-JID_DDP_DATA_GPU4=$JID
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-ddp.sh --data
+JID_DDP_DATA_FULLNODE=$JID
 
 # PyTorch DDP multi-node, 8 GPU, data
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8.sh pytorch-ddp.sh --data
-JID_DDP_DATA_GPU8=$JID
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh --data
+JID_DDP_DATA_TWONODES=$JID
 
 #### PyTorch DeepSpeed
 
 # PyTorch DeepSpeed, 4 GPU
-do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu4.sh pytorch-deepspeed.sh
-JID_DEEPSPEED_GPU4=$JID
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-deepspeed.sh
+JID_DEEPSPEED_FULLNODE=$JID
 
 # PyTorch DeepSpeed multi-node 8 GPU
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8-mpi.sh pytorch-deepspeed.sh
-JID_DEEPSPEED_GPU8=$JID
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-deepspeed.sh
+JID_DEEPSPEED_TWONODES=$JID
 
 #### PyTorch Horovod
 
 # PyTorch Horovod multi-node, 8 GPU with MPI
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh
-JID_HVD_GPU8=$JID
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh
+JID_HVD_TWONODES=$JID
 
 # PyTorch Horovod multi-node, 8 GPU with MPI
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu8-mpi.sh pytorch-horovod.sh --data
-JID_HVD_DATA_GPU8=$JID
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh --data
+JID_HVD_DATA_TWONODES=$JID
+
+fi
 
 #### Summary
 
@@ -106,18 +118,18 @@ print_result () {
 }
 
 print_result "DDP, synthetic" 1 $JID_DDP_GPU1
-print_result "DDP, synthetic" 4 $JID_DDP_GPU4
-print_result "DDP, synthetic" 8 $JID_DDP_GPU8
+print_result "DDP, synthetic" $FULLNODE $JID_DDP_FULLNODE
+print_result "DDP, synthetic" ${TWONODES} $JID_DDP_TWONODES
 
 print_result "DDP, Imagenet data" 1 $JID_DDP_DATA_GPU1
-print_result "DDP, Imagenet data" 4 $JID_DDP_DATA_GPU4
-print_result "DDP, Imagenet data" 8 $JID_DDP_DATA_GPU8
+print_result "DDP, Imagenet data" $FULLNODE $JID_DDP_DATA_FULLNODE
+print_result "DDP, Imagenet data" ${TWONODES} $JID_DDP_DATA_TWONODES
 
-print_result "DeepSpeed, synthetic data" 4 $JID_DEEPSPEED_GPU4
-print_result "DeepSpeed, synthetic data" 8 $JID_DEEPSPEED_GPU8
+print_result "DeepSpeed, synthetic data" $FULLNODE $JID_DEEPSPEED_FULLNODE
+print_result "DeepSpeed, synthetic data" ${TWONODES} $JID_DEEPSPEED_TWONODES
 
-print_result "Horovod, synthetic" 8 $JID_HVD_GPU8
-print_result "Horovod, Imagenet data" 8 $JID_HVD_DATA_GPU8
+print_result "Horovod, synthetic" ${TWONODES} $JID_HVD_TWONODES
+print_result "Horovod, Imagenet data" ${TWONODES} $JID_HVD_DATA_TWONODES
 
 EOF
 )
