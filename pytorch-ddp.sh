@@ -5,15 +5,7 @@ SCRIPT="benchmarks/pytorch_visionmodel_ddp.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
 DIST_OPTS="--standalone --master_port 0"
-SCRIPT_OPTS="--warmup-steps 100"
-
-#if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
-#then
-#    echo "WARNING: no pytorch module loaded, loading default module"
-#    module load pytorch
-#fi
-
-which python3
+SCRIPT_OPTS="--warmup-steps 100 --workers=$SLURM_CPUS_PER_TASK"
 
 if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
     echo "ERROR: this script needs to be run as one task per node."
