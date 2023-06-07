@@ -18,7 +18,7 @@ elif [[ $HOSTNAME == puhti-login* ]]; then
 elif [[ $HOSTNAME == uan* ]]; then
     CLUSTER="lumi"
     GPUSMALL="small-g"
-    GPUMEDIUM="standard-g"
+    GPUMEDIUM="small-g"
     FULLNODE="8"
     TWONODES="16"
     SBATCH_TEST="$SBATCH --account=project_462000007 --partition=small -t 5"
@@ -59,6 +59,22 @@ JID_DDP_FULLNODE=$JID
 # PyTorch DDP multi-node, two nodes
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh
 JID_DDP_TWONODES=$JID
+
+
+#### PyTorch DDP Lightning - syntethic data
+
+# PyTorch DDP Lightning, single GPU
+do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp-lightning.sh --steps=1000
+JID_DDPL_GPU1=$JID
+
+# PyTorch DDP, full node
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}-mpi.sh pytorch-ddp-lightning.sh
+JID_DDPL_FULLNODE=$JID
+
+# PyTorch DDP multi-node, two nodes
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-ddp-lightning.sh
+JID_DDPL_TWONODES=$JID
+
 
 if [ "$CLUSTER" != "lumi" ]; then
 #### PyTorch DDP - real data
@@ -120,6 +136,10 @@ print_result () {
 print_result "DDP, synthetic" 1 $JID_DDP_GPU1
 print_result "DDP, synthetic" $FULLNODE $JID_DDP_FULLNODE
 print_result "DDP, synthetic" ${TWONODES} $JID_DDP_TWONODES
+
+print_result "DDP Lightning, synthetic" 1 $JID_DDPL_GPU1
+print_result "DDP Lightning, synthetic" $FULLNODE $JID_DDPL_FULLNODE
+print_result "DDP Lightning, synthetic" ${TWONODES} $JID_DDPL_TWONODES
 
 print_result "DDP, Imagenet data" 1 $JID_DDP_DATA_GPU1
 print_result "DDP, Imagenet data" $FULLNODE $JID_DDP_DATA_FULLNODE
