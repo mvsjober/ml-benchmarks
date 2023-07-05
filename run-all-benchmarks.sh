@@ -90,6 +90,7 @@ JID_DDP_DATA_FULLNODE=$JID
 # PyTorch DDP multi-node, 8 GPU, data
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh --data
 JID_DDP_DATA_TWONODES=$JID
+fi
 
 #### PyTorch DeepSpeed
 
@@ -102,6 +103,7 @@ do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-
 JID_DEEPSPEED_TWONODES=$JID
 
 #### PyTorch Horovod
+if [ "$CLUSTER" != "lumi" ]; then
 
 # PyTorch Horovod multi-node, 8 GPU with MPI
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh

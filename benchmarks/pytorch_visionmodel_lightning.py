@@ -8,6 +8,7 @@ import torch
 import torch.nn.functional as F
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+from pytorch_lightning.callbacks import Callback
 
 from pytorch_visionmodel_ddp import dataset_from_datadir
 
@@ -30,6 +31,27 @@ class TorchvisionModel(pl.LightningModule):
         optimizer = torch.optim.SGD(self.parameters(), 1e-4)
         return optimizer
 
+class BenchmarkingCallback(Callback):
+    def __init__(self, warmup_steps, batchsize, world_size):
+        super().__init__()
+        self.warmup_steps = warmup_steps
+        self.batchsize = batchsize
+        self.world_size = world_size
+        self.images = 0
+        
+    def on_train_batch_start(self, trainer, pl_module, batch, batch_idx):
+        if batch_idx == self.warmup_steps:
+            self.start = datetime.now()
+        if batch_idx >= self.warmup_steps:
+            self.images += self.batchsize
+
+    def on_train_end(self, trainer, pl_module):
+        dur = datetime.now() - self.start
+        print(f"Training completed in: {dur}")
+        print(f"Images/sec: {self.images*self.world_size/dur.total_seconds():.2f} "
+              f"(average, skipping {self.warmup_steps} warmup steps)")
+
+    
 
 def train(args):
     print('Using PyTorch version:', torch.__version__)
@@ -42,6 +64,8 @@ def train(args):
                               num_workers=args.workers, pin_memory=True)
 
     precision = 16 if args.fp16 else 32
+
+    world_size = args.gpus*args.nodes
     
     if args.strategy == 'ddp':
         trainer = pl.Trainer(devices=args.gpus,
@@ -49,7 +73,10 @@ def train(args):
                              max_epochs=args.epochs,
                              accelerator='gpu',
                              strategy='ddp',
-                             precision=precision)
+                             precision=precision,
+                             callbacks=[BenchmarkingCallback(args.warmup_steps,
+                                                             args.batchsize,
+                                                             world_size)])
     elif args.strategy == 'horovod':
         trainer = pl.Trainer(max_epochs=args.epochs,
                              gpus=1,
@@ -58,16 +85,9 @@ def train(args):
     else:
         print("ERROR: Unsupported strategy '{}'".format(args.strategy))
         return
-    
-    start = datetime.now()
-    print("Starting training at", start)
-    trainer.fit(model, train_loader)
 
-    dur = datetime.now() - start
-    ni = len(train_loader) * args.batchsize
-    print("Training completed in: " + str(dur))
-    print("Images/sec: {:.4f}".format(ni/dur.total_seconds()))
-    
+    trainer.fit(model, train_loader)
+  
     # trainer.save_checkpoint("benchmark_lightning_model.ckpt")
 
 
@@ -97,6 +117,8 @@ def main():
                         help='Number of data loader workers')
     parser.add_argument('--steps', type=int, required=False,
                         help='Maxium number of training steps')
+    parser.add_argument('--warmup-steps', type=int, default=10,
+                        help='Number of initial steps to ignore in average')
     args = parser.parse_args()
 
     train(args)
