@@ -40,3 +40,9 @@
 | DeepSpeed, synthetic data | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-05-23 | 5782.77 |
 | Horovod, synthetic | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-05-23 | 5248.05 |
 | Horovod, Imagenet data | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-05-23 | 5214.18 |
+| DDP, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-06-29 | 507.38 |
+| DDP, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-06-29 | 3896.69 |
+| DDP, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-06-29 | 7641.90 |
+| DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-06-29 | 509.67 |
+| DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-06-29 | 3770.25 |
+| DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-06-29 | 7214.12 |
