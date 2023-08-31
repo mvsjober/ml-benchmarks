@@ -1,12 +1,11 @@
 #!/bin/bash
 #SBATCH --account=project_462000007
 #SBATCH --partition=small-g
-#SBATCH --nodes=2
-#SBATCH --ntasks-per-node=8
-#SBATCH --cpus-per-task=7
-#SBATCH --gpus-per-node=8
-#SBATCH --mem=480G
-#SBATCH --time=15
+#SBATCH --ntasks=1
+#SBATCH --cpus-per-task=14
+#SBATCH --gpus-per-node=2
+#SBATCH --mem=120G
+#SBATCH --time=0-2
 #SBATCH --output=logs/slurm-%x-%j.out
 
 cd $SLURM_SUBMIT_DIR
