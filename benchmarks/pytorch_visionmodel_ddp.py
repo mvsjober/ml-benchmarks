@@ -91,6 +91,10 @@ def train(args):
                               shuffle=False, num_workers=args.workers,
                               pin_memory=True, sampler=train_sampler)
 
+    scaler = torch.cuda.amp.GradScaler(enabled=args.fp16)
+    if verbose and args.fp16:
+        print(f"Using fp16 (PyTorch automatic mixed precision)")
+
     if args.profiler:
         th = None
         if args.profiler_format == 'tb':
@@ -124,12 +128,15 @@ def train(args):
             images = images.cuda(non_blocking=True)
             labels = labels.cuda(non_blocking=True)
 
-            outputs = model(images)
-            loss = criterion(outputs, labels)
+            with torch.cuda.amp.autocast(enabled=args.fp16):
+                outputs = model(images)
+                loss = criterion(outputs, labels)
 
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
+
+            scaler.scale(loss).backward()
+            scaler.step(optimizer)
+            scaler.update()
+
             if args.profiler:
                 prof.step()
 
@@ -196,6 +203,8 @@ def main():
     parser.add_argument('--print-steps', type=int, default=100)
     parser.add_argument('--warmup-steps', type=int, default=10,
                         help='Number of initial steps to ignore in average')
+    parser.add_argument('--fp16', action='store_true', default=False,
+                        help='enable mixed precision')
     args = parser.parse_args()
 
     train(args)
