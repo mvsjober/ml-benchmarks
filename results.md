@@ -46,3 +46,12 @@
 | DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-06-29 | 509.67 |
 | DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-06-29 | 3770.25 |
 | DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-06-29 | 7214.12 |
+| DDP, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-09-15 | 511.34 |
+| DDP, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-09-15 | 3844.09 |
+| DDP, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-09-15 | 7599.91 |
+| DDP, synthetic, fp16 | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-09-15 | 868.81 |
+| DDP, synthetic, fp16 | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-09-15 | 6411.18 |
+| DDP, synthetic, fp16 | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-09-15 | 12468.99 |
+| DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-09-15 | 511.02 |
+| DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-09-15 | 3734.80 |
+| DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-09-15 | 7201.45 |
