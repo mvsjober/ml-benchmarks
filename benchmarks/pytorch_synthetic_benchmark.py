@@ -9,11 +9,28 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import models
 
 import timeit
+import time
 import numpy as np
+import random
 
 
 def log(s, nl=True):
     print(s, end='\n' if nl else '', flush=True)
+
+class SyntheticDataDataset(Dataset):
+    def __init__(self, img_size, num_classes=1000, length=1e6):
+        self.img_size = img_size
+        self.num_classes = num_classes
+        self.length = length
+
+    def __len__(self):
+        return int(self.length)
+
+    def __getitem__(self, idx):
+        sample = (torch.rand(size=(3, self.img_size, self.img_size), dtype=torch.float32) * 2) - 1
+        label = random.randint(0, self.num_classes - 1)
+
+        return sample, label
 
 
 def main(args):
@@ -32,7 +49,7 @@ def main(args):
     else:
         device = torch.device('cpu')
 
-    log('Using PyTorch version: %s, Device: %s' % (torch.__version__, device))
+    log('Using PyTorch version: %s, Device: %s, fp16: %s' % (torch.__version__, device, use_amp))
     log(torch.__config__.show())
 
     cudnn.benchmark = True
@@ -49,16 +66,29 @@ def main(args):
         model = mkldnn_utils.to_mkldnn(model)
 
     optimizer = optim.SGD(model.parameters(), lr=0.01)
+    # optimizer = optim.Adam(model.parameters(), lr=0.0002, betas=(0.9, 0.999), eps=1e-8,
+    #                        weight_decay=1e-5, amsgrad=False)
     scaler = torch.cuda.amp.GradScaler(enabled=use_amp)
+
+    criterion = torch.nn.CrossEntropyLoss()
 
     imsize = 224
     if args.model == 'inception_v3':
         imsize = 299
 
-    def benchmark_step():
-        #data, target = next(iter(loader))
-        data = torch.randn(args.batch_size, 3, imsize, imsize)
-        target = torch.LongTensor(args.batch_size).random_() % 1000
+    train_dataset = SyntheticDataDataset(imsize, length=1e5)
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size,
+                              num_workers=args.num_workers, pin_memory=True)
+
+    log('Model: %s' % args.model)
+    log('Batch size: %d' % args.batch_size)
+
+    if args.num_warmup_batches > 0:
+        log('Running %d warmup batches...' % args.num_warmup_batches)
+    start_time = None
+    img_secs = []
+    for batch_id, batch in enumerate(train_loader):
+        data, target = batch
 
         if args.mkldnn:
             data = data.to_mkldnn()
@@ -72,28 +102,25 @@ def main(args):
             if args.mkldnn:
                 output = output.to_dense()
             if args.model == 'inception_v3':
-                loss = F.cross_entropy(output.logits, target)
+                # loss = F.cross_entropy(output.logits, target)
+                loss = criterion(output.logits, target)
             else:
-                loss = F.cross_entropy(output, target)
+                # loss = F.cross_entropy(output, target)
+                loss = criterion(output, target)
         scaler.scale(loss).backward()
         scaler.step(optimizer)
         scaler.update()
 
-    log('Model: %s' % args.model)
-    log('Batch size: %d' % args.batch_size)
-
-    # Warm-up
-    log('Running warmup...')
-    timeit.timeit(benchmark_step, number=args.num_warmup_batches)
-
-    # Benchmark
-    log('Running benchmark...')
-    img_secs = []
-    for x in range(args.num_iters):
-        time = timeit.timeit(benchmark_step, number=args.num_batches_per_iter)
-        img_sec = args.batch_size * args.num_batches_per_iter / time
-        log('Iter #%d: %.1f img/sec' % (x, img_sec))
-        img_secs.append(img_sec)
+        n = batch_id - args.num_warmup_batches
+        if n == 0:
+            start_time = time.time()
+        elif n > 0 and (n % args.num_batches_per_iter == 0):
+            time_now = time.time()
+            img_sec = args.batch_size * args.num_batches_per_iter / (time_now-start_time)
+            img_secs.append(img_sec)
+            start_time = time_now
+            log('Iter #%d: %.1f img/sec' % (n, img_sec))      
+            
 
     # Results
     img_sec_mean = np.mean(img_secs)
@@ -104,7 +131,7 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='PyTorch Synthetic Benchmark',
                                      formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('-n', '--num_workers', type=int, default=0)
+    parser.add_argument('-n', '--num_workers', type=int, default=7)
     parser.add_argument('--fp16', action='store_true', default=False,
                         help='enable mixed precision')
 
