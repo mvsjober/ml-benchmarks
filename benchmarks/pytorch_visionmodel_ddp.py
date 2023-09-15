@@ -114,6 +114,22 @@ def train(args):
 
     total_step = args.steps if args.steps is not None else len(train_loader)
 
+    if args.mlflow and verbose:
+        import mlflow
+        mlflow.set_tracking_uri(args.mlflow)
+
+        experiment_name = os.path.basename(__file__)
+        exp = mlflow.get_experiment_by_name(experiment_name)
+        if exp is None:
+            exp_id = mlflow.create_experiment(experiment_name)
+        else:
+            exp_id = exp.experiment_id
+
+        mlflow.start_run(run_name=os.getenv("SLURM_JOB_ID"), experiment_id=exp_id)
+
+        print(f"MLflow tracking to {mlflow.get_tracking_uri()}")
+        mlflow.log_params(vars(args))
+
     # For each block of printed steps
     last_start = datetime.now()
     last_images = 0
@@ -153,6 +169,14 @@ def train(args):
                 now = datetime.now()
                 last_secs = (now-last_start).total_seconds()
 
+                if args.mlflow:
+                    mlflow.log_metrics({
+                        "epoch": epoch+1,
+                        "step": i+1,
+                        "loss": loss.item(),
+                        "images/sec": last_images*world_size/last_secs
+                        })
+
                 print(f'Epoch [{epoch+1}/{args.epochs}], Step [{i+1}/{total_step}], '
                       f'Loss: {loss.item():.4f}, '
                       f'Images/sec: {last_images*world_size/last_secs:.2f} '
@@ -160,6 +184,16 @@ def train(args):
 
                 last_start = now
                 last_images = 0
+
+                # if args.mlflow:
+                #     cp_fname = 'model_checkpoint.pt'
+                #     torch.save({
+                #         'epoch': epoch+1,
+                #         'steps': i+1,
+                #         'model_state_dict': model.state_dict(),
+                #         'optimizer_state_dict': optimizer.state_dict()
+                #         }, cp_fname)
+                #     mlflow.log_artifact(cp_fname, artifact_path='checkpoints')
 
             if args.steps is not None and tot_steps >= args.steps:
                 break
@@ -203,6 +237,7 @@ def main():
     parser.add_argument('--print-steps', type=int, default=100)
     parser.add_argument('--warmup-steps', type=int, default=10,
                         help='Number of initial steps to ignore in average')
+    parser.add_argument('--mlflow', nargs='?', type=str, const='./mlruns')
     parser.add_argument('--fp16', action='store_true', default=False,
                         help='enable mixed precision')
     args = parser.parse_args()

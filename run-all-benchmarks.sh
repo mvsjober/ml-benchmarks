@@ -81,7 +81,7 @@ JID_DDP_FP16_TWONODES=$JID
 #### PyTorch DDP Lightning - syntethic data
 
 # PyTorch DDP Lightning, single GPU
-do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp-lightning.sh --steps=1000
+do_sbatch --partition=$GPUSMALL -t 30 slurm/${CLUSTER}-gpu1.sh pytorch-ddp-lightning.sh --steps=1000
 JID_DDPL_GPU1=$JID
 
 # PyTorch DDP, full node
