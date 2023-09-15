@@ -32,6 +32,9 @@ echo "Detected $CLUSTER cluster"
 if [ "$LMOD_FAMILY_PYTHON_ML_ENV" != "pytorch" ]
 then
     echo "WARNING: no pytorch module loaded, loading default module"
+    if [ "$CLUSTER" = "lumi" ]; then
+        module use /appl/local/csc/modulefiles/
+    fi
     module load pytorch
 fi
 
@@ -59,6 +62,20 @@ JID_DDP_FULLNODE=$JID
 # PyTorch DDP multi-node, two nodes
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh
 JID_DDP_TWONODES=$JID
+
+#### PyTorch DDP - syntethic data fp16
+
+# PyTorch DDP, single GPU
+do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000 --fp16
+JID_DDP_FP16_GPU1=$JID
+
+# PyTorch DDP, full node
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-ddp.sh --fp16
+JID_DDP_FP16_FULLNODE=$JID
+
+# PyTorch DDP multi-node, two nodes
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh --fp16
+JID_DDP_FP16_TWONODES=$JID
 
 
 #### PyTorch DDP Lightning - syntethic data
@@ -138,6 +155,10 @@ print_result () {
 print_result "DDP, synthetic" 1 $JID_DDP_GPU1
 print_result "DDP, synthetic" $FULLNODE $JID_DDP_FULLNODE
 print_result "DDP, synthetic" ${TWONODES} $JID_DDP_TWONODES
+
+print_result "DDP, synthetic, fp16" 1 $JID_DDP_FP16_GPU1
+print_result "DDP, synthetic, fp16" $FULLNODE $JID_DDP_FP16_FULLNODE
+print_result "DDP, synthetic, fp16" ${TWONODES} $JID_DDP_FP16_TWONODES
 
 print_result "DDP Lightning, synthetic" 1 $JID_DDPL_GPU1
 print_result "DDP Lightning, synthetic" $FULLNODE $JID_DDPL_FULLNODE
