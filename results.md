@@ -55,3 +55,19 @@
 | DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 1    | 2023-09-15 | 511.02 |
 | DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-09-15 | 3734.80 |
 | DDP Lightning, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-09-15 | 7201.45 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | mahti    | 1    | 2023-09-15 | 781.72 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | mahti    | 4    | 2023-09-15 | 3054.03 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 5824.31 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | mahti    | 1    | 2023-09-15 | 1128.61 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | mahti    | 4    | 2023-09-15 | 4153.99 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 7849.03 |
+| DDP Lightning, synthetic | PyTorch 2.0.0+cu117 | mahti    | 1    | 2023-09-15 | 798.08 |
+| DDP Lightning, synthetic | PyTorch 2.0.0+cu117 | mahti    | 4    | 2023-09-15 | 3135.00 |
+| DDP Lightning, synthetic | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 6010.30 |
+| DDP, Imagenet data | PyTorch 2.0.0+cu117 | mahti    | 1    | 2023-09-15 | 783.28 |
+| DDP, Imagenet data | PyTorch 2.0.0+cu117 | mahti    | 4    | 2023-09-15 | 3067.25 |
+| DDP, Imagenet data | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 5777.12 |
+| DeepSpeed, synthetic data | PyTorch 2.0.0+cu117 | mahti    | 4    | 2023-09-15 | 3107.95 |
+| DeepSpeed, synthetic data | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 5813.62 |
+| Horovod, synthetic | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 5235.30 |
+| Horovod, Imagenet data | PyTorch 2.0.0+cu117 | mahti    | 8    | 2023-09-15 | 5230.77 |

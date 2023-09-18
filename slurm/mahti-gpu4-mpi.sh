@@ -2,7 +2,7 @@
 #SBATCH --account=project_2001659
 #SBATCH --partition=gputest
 #SBATCH --nodes=1
-#SBATCH --ntasks=4
+#SBATCH --ntasks-per-node=4
 #SBATCH --cpus-per-task=32
 #SBATCH --time=15
 #SBATCH --gres=gpu:a100:4,nvme:200
