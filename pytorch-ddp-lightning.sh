@@ -4,7 +4,7 @@ export NCCL_DEBUG=INFO
 SCRIPT="benchmarks/pytorch_visionmodel_lightning.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
-SCRIPT_OPTS="--strategy=ddp --warmup-steps 100 --workers=$SLURM_CPUS_PER_TASK"
+SCRIPT_OPTS="--strategy=ddp --warmup-steps 10 --workers=$SLURM_CPUS_PER_TASK"
 
 if [ $(( $NUM_GPUS * $SLURM_NNODES )) -ne $SLURM_NTASKS ]; then
     echo "ERROR: this script needs to be run as one task per GPU. Try using slurm/*-mpi.sh scripts."
