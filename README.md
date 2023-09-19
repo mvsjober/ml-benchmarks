@@ -76,6 +76,8 @@ sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic.sh
 PyTorch benchmark using Distributed Data Parallel or Horovod for handling
 multiple GPUs.
 
+![PyTorch DDP results chart](pytorch_ddp_synthetic.png)
+
 Run example with 4 GPUs on Puhti using synthetic data and DDP:
 
 ```bash
@@ -105,6 +107,8 @@ PyTorch Lightning example using DDP. Runs with "resnet50" model by
 default, but also supports "inception_v3" and other [models from
 torchvision.models][2].
 
+![PyTorch DDP Lightning results chart](pytorch_ddp_lightning_synthetic.png)
+
 DDP (as of PyTorch 1.13) needs to be run as single task per GPU:
 
 ```bash
@@ -117,6 +121,8 @@ of synthetic data and `--fp16` to enable 16-bit precision for some
 operations.
 
 ## PyTorch DeepSpeed
+
+![PyTorch deepspeed results chart](pytorch_deepspeed_synthetic.png)
 
 DeepSpeed example, 4 GPUs with synthetic data:
 
