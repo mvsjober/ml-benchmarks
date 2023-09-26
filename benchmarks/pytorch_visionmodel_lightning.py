@@ -74,6 +74,7 @@ def train(args):
                              accelerator='gpu',
                              strategy='ddp',
                              precision=precision,
+                             max_steps=args.steps,
                              callbacks=[BenchmarkingCallback(args.warmup_steps,
                                                              args.batchsize,
                                                              world_size)])
@@ -115,7 +116,7 @@ def main():
                         help='Batch size')
     parser.add_argument('-j', '--workers', type=int, default=10,
                         help='Number of data loader workers')
-    parser.add_argument('--steps', type=int, required=False,
+    parser.add_argument('--steps', type=int, required=False, default=-1,
                         help='Maxium number of training steps')
     parser.add_argument('--warmup-steps', type=int, default=10,
                         help='Number of initial steps to ignore in average')
