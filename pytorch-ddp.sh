@@ -20,11 +20,12 @@ if [ "$1" == "--data" ]; then
     shift
 
     if [ ! -f $IMAGENET_DATA ]; then   # LUMI
-        IMAGENET_DATA=/scratch/project_462000007/mvsjober/data/ilsvrc2012-torch-resized-new.tar
+        IMAGENET_DATA=/flash/project_462000007/mvsjober/ilsvrc2012-torch-resized-new.tar
     fi
 
     if [ -z "$LOCAL_SCRATCH" ]; then
         LOCAL_SCRATCH=/tmp
+        #LOCAL_SCRATCH=/flash/project_462000007/mvsjober/tmp
     fi
     
     (set -x
@@ -44,3 +45,5 @@ fi
 (set -x
  srun python3 -m torch.distributed.run $DIST_OPTS --nnodes=$SLURM_NNODES --nproc_per_node=$NUM_GPUS $SCRIPT $SCRIPT_OPTS $*
 )
+
+rm -rf $LOCAL_SCRATCH/ilsvrc2012-torch

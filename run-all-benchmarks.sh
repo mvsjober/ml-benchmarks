@@ -21,7 +21,7 @@ elif [[ $HOSTNAME == uan* ]]; then
     GPUMEDIUM="small-g"
     FULLNODE="8"
     TWONODES="16"
-    SBATCH_TEST="$SBATCH --account=project_462000007 --partition=small -t 5"
+    SBATCH_TEST="$SBATCH --account=project_462000007 --partition=debug -t 5"
 else
     echo "ERROR: cannot determine cluster from hostname: $HOSTNAME"
     exit 1
@@ -55,6 +55,10 @@ echo "PyTorch version $PYTORCH_VERSION"
 do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
 JID_DDP_GPU1=$JID
 
+# PyTorch DDP, two GPUs
+do_sbatch slurm/${CLUSTER}-gpu2.sh pytorch-ddp.sh --steps=1000
+JID_DDP_GPU2=$JID
+
 # PyTorch DDP, full node
 do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-ddp.sh
 JID_DDP_FULLNODE=$JID
@@ -63,11 +67,16 @@ JID_DDP_FULLNODE=$JID
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh
 JID_DDP_TWONODES=$JID
 
+
 #### PyTorch DDP - syntethic data fp16
 
 # PyTorch DDP, single GPU
 do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000 --fp16
 JID_DDP_FP16_GPU1=$JID
+
+# PyTorch DDP, two GPUs
+do_sbatch slurm/${CLUSTER}-gpu2.sh pytorch-ddp.sh --steps=1000 --fp16
+JID_DDP_FP16_GPU2=$JID
 
 # PyTorch DDP, full node
 do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-ddp.sh --fp16
@@ -93,7 +102,6 @@ do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-
 JID_DDPL_TWONODES=$JID
 
 
-if [ "$CLUSTER" != "lumi" ]; then
 #### PyTorch DDP - real data
 
 # PyTorch DDP, single GPU, data
@@ -107,7 +115,7 @@ JID_DDP_DATA_FULLNODE=$JID
 # PyTorch DDP multi-node, 8 GPU, data
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.sh --data
 JID_DDP_DATA_TWONODES=$JID
-fi
+
 
 #### PyTorch DeepSpeed
 
@@ -119,18 +127,37 @@ JID_DEEPSPEED_FULLNODE=$JID
 do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-deepspeed.sh
 JID_DEEPSPEED_TWONODES=$JID
 
+
 #### PyTorch Horovod
 if [ "$CLUSTER" != "lumi" ]; then
+    # PyTorch Horovod multi-node, 8 GPU with MPI
+    do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh
+    JID_HVD_TWONODES=$JID
 
-# PyTorch Horovod multi-node, 8 GPU with MPI
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh
-JID_HVD_TWONODES=$JID
-
-# PyTorch Horovod multi-node, 8 GPU with MPI
-do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh --data
-JID_HVD_DATA_TWONODES=$JID
-
+    # PyTorch Horovod multi-node, 8 GPU with MPI
+    do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh --data
+    JID_HVD_DATA_TWONODES=$JID
 fi
+
+
+#### PyTorch run_clm.py
+
+# PyTorch CLM, single GPU
+do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-clm.sh
+JID_CLM_GPU1=$JID
+
+# PyTorch CLM, two GPUs
+do_sbatch slurm/${CLUSTER}-gpu2.sh pytorch-clm.sh
+JID_CLM_GPU2=$JID
+
+# PyTorch CLM, full node
+do_sbatch --partition=$GPUMEDIUM -t 30 slurm/${CLUSTER}-gpu${FULLNODE}.sh pytorch-clm.sh
+JID_CLM_FULLNODE=$JID
+
+# PyTorch CLM multi-node, two nodes
+do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-clm.sh
+JID_CLM_TWONODES=$JID
+
 
 #### Summary
 
@@ -146,6 +173,9 @@ print_result () {
     LOGFN=\$(ls -1 logs/slurm-*-\$JID.out)
     RES=\$(grep '^Images/sec' \$LOGFN | tail -n1 | cut -d ' ' -f 2)
     if [ -z "\$RES" ]; then
+       RES=\$(grep train_samples_per_second \$LOGFN | tail -n1 | cut -d = -f 2 | tr -d ' ')
+    fi
+    if [ -z "\$RES" ]; then
        echo "ERROR IN \$LOGFN"
     else
        echo "\$RES |"
@@ -153,10 +183,12 @@ print_result () {
 }
 
 print_result "DDP, synthetic" 1 $JID_DDP_GPU1
+print_result "DDP, synthetic" 2 $JID_DDP_GPU2
 print_result "DDP, synthetic" $FULLNODE $JID_DDP_FULLNODE
 print_result "DDP, synthetic" ${TWONODES} $JID_DDP_TWONODES
 
 print_result "DDP, synthetic, fp16" 1 $JID_DDP_FP16_GPU1
+print_result "DDP, synthetic, fp16" 2x $JID_DDP_FP16_GPU2
 print_result "DDP, synthetic, fp16" $FULLNODE $JID_DDP_FP16_FULLNODE
 print_result "DDP, synthetic, fp16" ${TWONODES} $JID_DDP_FP16_TWONODES
 
@@ -173,6 +205,11 @@ print_result "DeepSpeed, synthetic data" ${TWONODES} $JID_DEEPSPEED_TWONODES
 
 print_result "Horovod, synthetic" ${TWONODES} $JID_HVD_TWONODES
 print_result "Horovod, Imagenet data" ${TWONODES} $JID_HVD_DATA_TWONODES
+
+print_result "run_clm, synthetic" 1 $JID_CLM_GPU1
+print_result "run_clm, synthetic" 2 $JID_CLM_GPU2
+print_result "run_clm, synthetic" $FULLNODE $JID_CLM_FULLNODE
+print_result "run_clm, synthetic" ${TWONODES} $JID_CLM_TWONODES
 
 EOF
 )
