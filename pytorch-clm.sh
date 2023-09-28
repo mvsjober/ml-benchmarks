@@ -2,15 +2,25 @@ export OMP_NUM_THREADS=1
 export NCCL_DEBUG=INFO
 
 SCRIPT="benchmarks/run_clm.py"
-OUTPUT_DIR="/flash/project_462000007/mvsjober/run-clm/$SLURM_JOB_ID"
 
-export HF_HOME=/scratch/project_462000007/mvsjober/hf-home
-export TORCH_HOME=/scratch/project_462000007/mvsjober/torch-cache
+export HF_HOME=/scratch/project_2001659/mvsjober/hf-home
+export TORCH_HOME=/scratch/project_2001659/mvsjober/torch-cache
+
+if [ ! -d "/scratch/project_2001659/mvsjober" ]; then
+    HF_HOME=/scratch/project_462000007/mvsjober/hf-home
+    TORCH_HOME=/scratch/project_462000007/mvsjober/torch-cache
+fi
 
 if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
     echo "ERROR: this script needs to be run as one task per node."
     echo "SLURM_NNODES = $SLURM_NNODES != SLURM_NTASKS = $SLURM_NTASKS"
     exit 1
+fi
+
+if [ -z "$LOCAL_SCRATCH" ]; then
+    OUTPUT_DIR="/flash/project_462000007/mvsjober/run-clm/$SLURM_JOB_ID"
+else
+    OUTPUT_DIR="$LOCAL_SCRATCH/run-clm/$SLURM_JOB_ID"
 fi
 
 SCRIPT_OPTS="--gradient_accumulation_steps $(( 64 / $NUM_GPUS / $SLURM_NNODES ))"
