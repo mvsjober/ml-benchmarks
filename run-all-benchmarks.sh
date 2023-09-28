@@ -52,11 +52,11 @@ echo "PyTorch version $PYTORCH_VERSION"
 #### PyTorch DDP - syntethic data
 
 # PyTorch DDP, single GPU
-do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000
 JID_DDP_GPU1=$JID
 
 # PyTorch DDP, two GPUs
-do_sbatch slurm/${CLUSTER}-gpu2.sh pytorch-ddp.sh --steps=1000
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu2.sh pytorch-ddp.sh --steps=1000
 JID_DDP_GPU2=$JID
 
 # PyTorch DDP, full node
@@ -71,11 +71,11 @@ JID_DDP_TWONODES=$JID
 #### PyTorch DDP - syntethic data fp16
 
 # PyTorch DDP, single GPU
-do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000 --fp16
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000 --fp16
 JID_DDP_FP16_GPU1=$JID
 
 # PyTorch DDP, two GPUs
-do_sbatch slurm/${CLUSTER}-gpu2.sh pytorch-ddp.sh --steps=1000 --fp16
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu2.sh pytorch-ddp.sh --steps=1000 --fp16
 JID_DDP_FP16_GPU2=$JID
 
 # PyTorch DDP, full node
