@@ -3,10 +3,14 @@ export NCCL_DEBUG=INFO
 
 SCRIPT="benchmarks/run_clm.py"
 
+# Puhti and Mahti
+HF_MODEL=EleutherAI/gpt-neo-125M
 export HF_HOME=/scratch/project_2001659/mvsjober/hf-home
 export TORCH_HOME=/scratch/project_2001659/mvsjober/torch-cache
 
+# LUMI
 if [ ! -d "/scratch/project_2001659/mvsjober" ]; then
+    # HF_MODEL=EleutherAI/gpt-neo-1.3B
     HF_HOME=/scratch/project_462000007/mvsjober/hf-home
     TORCH_HOME=/scratch/project_462000007/mvsjober/torch-cache
 fi
@@ -40,7 +44,7 @@ fi
 (set -x
  srun python3 -m torch.distributed.run $DIST_OPTS \
       --nnodes=$SLURM_NNODES --nproc_per_node=$NUM_GPUS $SCRIPT \
-      --model_name_or_path EleutherAI/gpt-neo-1.3B \
+      --model_name_or_path $HF_MODEL \
       --dataset_name wikitext --dataset_config_name wikitext-2-raw-v1 \
       --per_device_train_batch_size 2 --do_train \
       --output_dir $OUTPUT_DIR --overwrite_output_dir \
