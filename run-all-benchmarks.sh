@@ -188,7 +188,7 @@ print_result "DDP, synthetic" $FULLNODE $JID_DDP_FULLNODE
 print_result "DDP, synthetic" ${TWONODES} $JID_DDP_TWONODES
 
 print_result "DDP, synthetic, fp16" 1 $JID_DDP_FP16_GPU1
-print_result "DDP, synthetic, fp16" 2x $JID_DDP_FP16_GPU2
+print_result "DDP, synthetic, fp16" 2 $JID_DDP_FP16_GPU2
 print_result "DDP, synthetic, fp16" $FULLNODE $JID_DDP_FP16_FULLNODE
 print_result "DDP, synthetic, fp16" ${TWONODES} $JID_DDP_FP16_TWONODES
 
