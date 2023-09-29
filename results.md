@@ -102,3 +102,25 @@
 | run_clm, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 2    | 2023-09-28 | 43.37 |
 | run_clm, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 8    | 2023-09-28 | 145.513 |
 | run_clm, synthetic | PyTorch 2.0.1+rocm5.4.2 | lumi    | 16    | 2023-09-28 | 231.133 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | puhti    | 1    | 2023-09-28 | 329.27 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | puhti    | 2    | 2023-09-28 | 520.80 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | puhti    | 4    | 2023-09-28 | 1249.31 |
+| DDP, synthetic | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 2465.86 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | puhti    | 1    | 2023-09-28 | 670.50 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | puhti    | 2    | 2023-09-28 | 1186.25 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | puhti    | 4    | 2023-09-28 | 2392.44 |
+| DDP, synthetic, fp16 | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 4655.31 |
+| DDP Lightning, synthetic | PyTorch 2.0.0+cu117 | puhti    | 1    | 2023-09-28 | 330.92 |
+| DDP Lightning, synthetic | PyTorch 2.0.0+cu117 | puhti    | 4    | 2023-09-28 | 1252.09 |
+| DDP Lightning, synthetic | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 2487.39 |
+| DDP, Imagenet data | PyTorch 2.0.0+cu117 | puhti    | 1    | 2023-09-28 | 329.29 |
+| DDP, Imagenet data | PyTorch 2.0.0+cu117 | puhti    | 4    | 2023-09-28 | 1244.50 |
+| DDP, Imagenet data | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 2468.76 |
+| DeepSpeed, synthetic data | PyTorch 2.0.0+cu117 | puhti    | 4    | 2023-09-28 | 1263.66 |
+| DeepSpeed, synthetic data | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 2432.60 |
+| Horovod, synthetic | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 2310.85 |
+| Horovod, Imagenet data | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 2310.54 |
+| run_clm, synthetic | PyTorch 2.0.0+cu117 | puhti    | 1    | 2023-09-28 | 17.47 |
+| run_clm, synthetic | PyTorch 2.0.0+cu117 | puhti    | 2    | 2023-09-28 | 33.563 |
+| run_clm, synthetic | PyTorch 2.0.0+cu117 | puhti    | 4    | 2023-09-28 | 60.755 |
+| run_clm, synthetic | PyTorch 2.0.0+cu117 | puhti    | 8    | 2023-09-28 | 105.145 |
