@@ -41,6 +41,27 @@ tasks).
 The different benchmarks are described below in more detail. 
 
 
+### run_clm
+
+Fine-tuning GPT-like model on WikiText-2, directly from [Huggingface
+Language modeling
+examples](https://github.com/huggingface/transformers/tree/main/examples/pytorch/language-modeling).
+
+![PyTorch run_clm results chart](pytorch_run_clm_synthetic.png)
+
+Run example with a full node GPUs (in this case 8 GPUs on LUMI):
+
+```bash
+sbatch slurm/lumi-gpu8.sh pytorch-clm.sh
+```
+
+Run example with two full nodes GPUs (in this case 16 GPUs on LUMI):
+
+```bash
+sbatch slurm/lumi-gpu16.sh pytorch-clm.sh
+```
+
+
 ### PyTorch synthetic
 
 Originally based on [Horovod's example script with the same name][1]. Note that

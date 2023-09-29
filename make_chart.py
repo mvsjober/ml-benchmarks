@@ -116,7 +116,8 @@ def main(args):
     orig_df['date'] = pd.to_datetime(orig_df['date'])
 
     # Filter by date
-    orig_df = orig_df[orig_df.date > pd.Timestamp("2023-09-10")]
+    orig_df = orig_df[orig_df.date >= pd.Timestamp("2023-09-28")]
+    print(orig_df)
 
     print("Benchmarks:")
     for b in orig_df['benchmark'].unique():
@@ -126,6 +127,7 @@ def main(args):
     make_plot(orig_df, "DDP, synthetic", options=True)
     make_plot(orig_df, "DDP Lightning, synthetic")
     make_plot(orig_df, "DeepSpeed, synthetic")
+    make_plot(orig_df, "run_clm, synthetic")
     
 
 
