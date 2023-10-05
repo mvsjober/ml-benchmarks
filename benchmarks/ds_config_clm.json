@@ -1,8 +1,11 @@
 {
     "optimizer": {
-        "type": "SGD",
+        "type": "Adam",
         "params": {
-            "lr": "auto"
+            "lr": "auto",
+            "betas": "auto",
+            "eps": "auto",
+            "weight_decay": "auto"
         }
     },
     "scheduler": {
@@ -12,6 +15,15 @@
             "warmup_max_lr": "auto",
             "warmup_num_steps": "auto"
         }
+    },
+    "zero_optimization": {
+        "stage": 2,
+        "allgather_partitions": true,
+        "allgather_bucket_size": 2e8,
+        "overlap_comm": true,
+        "reduce_scatter": true,
+        "reduce_bucket_size": 2e8,
+        "contiguous_gradients": true
     },
     "gradient_accumulation_steps": "auto",
     "gradient_clipping": "auto",
