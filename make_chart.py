@@ -79,7 +79,7 @@ def make_plot(df, benchmark, options=False):
         height = 8
 
     sys_names = ['puhti', 'mahti', 'lumi']
-    sys_labels = ['V100', 'A100', 'MI250x']
+    sys_labels = ['V100', 'A100', 'MI250x (GCD)']
 
     g = sns.catplot(data=df, kind="bar", y="img_sec", x="cluster", hue=hue, 
                     height=height, aspect=2, dodge=True, legend=False, 
