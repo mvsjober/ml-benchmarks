@@ -230,7 +230,7 @@ def main():
     parser.add_argument('-j', '--workers', type=int, default=10,
                         help='Number of data loader workers')
     parser.add_argument('--steps', type=int, required=False,
-                        help='Maxium number of training steps')
+                        help='Maximum number of training steps')
     parser.add_argument('--profiler', action='store_true')
     parser.add_argument('--profiler-format', type=str,
                         choices=['tb', 'json'], default='tb')
