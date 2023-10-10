@@ -39,7 +39,7 @@ fi
 if [ "$SLURM_NNODES" -gt 1 ]; then
     export RDZV_HOST=$(hostname)
     export RDZV_PORT=29400
-    MASTER_IP=$(ip -4 -brief addr show hsn0 | grep -oP '([\d]+.[\d.]+)')
+    MASTER_IP=$(ip -4 -brief addr show | grep -E 'hsn0|ib0' | grep -oP '([\d]+.[\d.]+)')
     #DIST_OPTS="--rdzv_id=$SLURM_JOB_ID --rdzv_backend=c10d --rdzv_endpoint=$RDZV_HOST:$RDZV_PORT"
     DIST_OPTS="--main_process_ip=$MASTER_IP --main_process_port=$RDZV_PORT --rdzv_backend=c10d"
 fi
@@ -54,4 +54,4 @@ srun accelerate-launch.sh --multi_gpu --num_processes=$NUM_PROCESSES --num_machi
             $DIST_OPTS $SCRIPT $SCRIPT_OPTS
 #)
 
-rm -rf $LOCAL_SCRATCH/ilsvrc2012-torch
+#rm -rf $LOCAL_SCRATCH/ilsvrc2012-torch

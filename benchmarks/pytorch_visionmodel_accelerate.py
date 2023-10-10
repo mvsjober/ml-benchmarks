@@ -1,16 +1,9 @@
-# Based on multiprocessing example from
-# https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html
-
 from datetime import datetime
 import argparse
 import os
 import torch
-# import torch.distributed as dist
 import torch.nn as nn
-# from torch.utils.data.distributed import DistributedSampler
-# from torch.nn.parallel import DistributedDataParallel
 from torch.utils.data import DataLoader
-# from torch.profiler import profile, ProfilerActivity
 
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
@@ -65,74 +58,27 @@ def dataset_from_datadir(datadir, verbose=True):
 def train(args):
     accelerator = Accelerator()
 
-    # local_rank = int(os.environ['LOCAL_RANK'])
-    # verbose = local_rank == 0
     verbose = accelerator.is_main_process
     if verbose:
         print('Using PyTorch version:', torch.__version__)
         print(torch.__config__.show())
 
-    # dist.init_process_group(backend='nccl')
     world_size = torch.distributed.get_world_size()
-
-    # torch.manual_seed(0)
-    # torch.cuda.set_device(local_rank)
 
     # Set up standard model.
     if verbose:
         print(f'Using {args.model} model')
     model = getattr(models, args.model)()
-    # model = model.cuda()
 
     criterion = nn.CrossEntropyLoss() #.cuda()
     optimizer = torch.optim.SGD(model.parameters(), 1e-4)
 
-    # model = DistributedDataParallel(model, device_ids=[local_rank])
-
     train_dataset = dataset_from_datadir(args.datadir, verbose=verbose)
-    #train_sampler = DistributedSampler(train_dataset)
     train_loader = DataLoader(dataset=train_dataset, batch_size=args.batchsize,
                               shuffle=False, num_workers=args.workers,
                               pin_memory=True) #, sampler=train_sampler)
 
-    # scaler = torch.cuda.amp.GradScaler(enabled=args.fp16)
-    # if verbose and args.fp16:
-    #     print(f"Using fp16 (PyTorch automatic mixed precision)")
-
-    # if args.profiler:
-    #     th = None
-    #     if args.profiler_format == 'tb':
-    #         th = torch.profiler.tensorboard_trace_handler('./logs/profiler')
-    #     prof = profile(
-    #         schedule=torch.profiler.schedule(
-    #             wait=1,     # number of steps steps not active
-    #             warmup=1,   # warmup steps (tracing, but results discarded)
-    #             active=10,  # tracing steps
-    #             repeat=1),  # repeat procedure this many times
-    #         on_trace_ready=th,
-    #         activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-    #         record_shapes=True,
-    #         with_stack=True
-    #     )
-    #     prof.start()
-
     total_step = args.steps if args.steps is not None else len(train_loader)//world_size
-
-    # if args.mlflow and verbose:
-    #     import mlflow
-    #     mlflow.set_tracking_uri(args.mlflow)
-
-    #     experiment_name = os.path.basename(__file__)
-    #     exp = mlflow.get_experiment_by_name(experiment_name)
-    #     if exp is None:
-    #         exp_id = mlflow.create_experiment(experiment_name)
-    #     else:
-    #         exp_id = exp.experiment_id
-
-    #     mlflow.start_run(run_name=os.getenv("SLURM_JOB_ID"), experiment_id=exp_id)
-
-    #     print(f"MLflow tracking to {mlflow.get_tracking_uri()}")
-    #     mlflow.log_params(vars(args))
 
     train_loader, model, optimizer = accelerator.prepare(train_loader, model, optimizer)
 
@@ -147,20 +93,12 @@ def train(args):
 
     for epoch in range(args.epochs):
         for i, (images, labels) in enumerate(train_loader):
-            # images = images.cuda(non_blocking=True)
-            # labels = labels.cuda(non_blocking=True)
-
-            # with torch.cuda.amp.autocast(enabled=args.fp16):
             outputs = model(images)
             loss = criterion(outputs, labels)
 
             accelerator.backward(loss)
             optimizer.step()
             optimizer.zero_grad()
-
-            # scaler.scale(loss).backward()
-            # scaler.step(optimizer)
-            # scaler.update()
 
             if args.profiler:
                 prof.step()
@@ -174,38 +112,17 @@ def train(args):
             elif tot_steps > args.warmup_steps:
                 avg_images += li
 
-            print('FOO', accelerator.is_main_process, i)
             if (i + 1) % args.print_steps == 0 and accelerator.is_main_process:
-
-                # if args.mlflow:
-                #     mlflow.log_metrics({
-                #         "epoch": epoch+1,
-                #         "step": i+1,
-                #         "loss": loss.item(),
-                #         "images/sec": last_images*world_size/last_secs
-                #         })
-
-                loss_mean = accelerator.gather_for_metrics(loss).mean()
                 now = datetime.now()
                 last_secs = (now-last_start).total_seconds()
 
                 print(f'Epoch [{epoch+1}/{args.epochs}], Step [{i+1}/{total_step}], '
-                      f'Loss: {loss_mean.item():.4f}, '
-                      f'Images/sec: {last_images/last_secs:.2f} '
+                      f'Loss: {loss.item():.4f}, '
+                      f'Images/sec: {last_images*world_size/last_secs:.2f} '
                       f'(last {args.print_steps} steps)')
 
                 last_start = now
                 last_images = 0
-
-                # if args.mlflow:
-                #     cp_fname = 'model_checkpoint.pt'
-                #     torch.save({
-                #         'epoch': epoch+1,
-                #         'steps': i+1,
-                #         'model_state_dict': model.state_dict(),
-                #         'optimizer_state_dict': optimizer.state_dict()
-                #         }, cp_fname)
-                #     mlflow.log_artifact(cp_fname, artifact_path='checkpoints')
 
             if args.steps is not None and tot_steps >= args.steps:
                 break
@@ -249,9 +166,6 @@ def main():
     parser.add_argument('--print-steps', type=int, default=100)
     parser.add_argument('--warmup-steps', type=int, default=10,
                         help='Number of initial steps to ignore in average')
-    # parser.add_argument('--mlflow', nargs='?', type=str, const='./mlruns')
-    # parser.add_argument('--fp16', action='store_true', default=False,
-    #                     help='enable mixed precision')
     args = parser.parse_args()
 
     train(args)
