@@ -44,6 +44,7 @@ do_sbatch () {
     JID=$($SBATCH $*)
     echo "Submitted job $JID: $*"
     JIDS="$JIDS:$JID"
+    sleep 1
 }
 
 PYTORCH_VERSION=$(python3 -c "import torch; print(torch.__version__)" 2>/dev/null)
@@ -143,11 +144,11 @@ fi
 #### PyTorch run_clm.py
 
 # PyTorch CLM, single GPU
-do_sbatch slurm/${CLUSTER}-gpu1.sh pytorch-clm.sh
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-clm.sh
 JID_CLM_GPU1=$JID
 
 # PyTorch CLM, two GPUs
-do_sbatch slurm/${CLUSTER}-gpu2.sh pytorch-clm.sh
+do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu2.sh pytorch-clm.sh
 JID_CLM_GPU2=$JID
 
 # PyTorch CLM, full node
