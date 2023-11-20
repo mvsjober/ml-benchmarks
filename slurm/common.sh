@@ -7,10 +7,17 @@ module list
 export NCCL_DEBUG=INFO
 #export NCCL_DEBUG_SUBSYS=ALL
 
+if which nvidia-smi > /dev/null 2>&1; then
+    export SMI_CMD=nvidia-smi
+else
+    export SMI_CMD=rocm-smi
+fi
+
+
 (set -x
-#singularity --version
-hostname
-nvidia-smi 2>/dev/null || rocm-smi
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 hostname
+srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 $SMI_CMD
+which python3
 date
 )
 
