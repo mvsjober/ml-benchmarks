@@ -50,7 +50,7 @@ fi
 NUM_PROCESSES=$(( $NUM_GPUS * $SLURM_NNODES ))
 
 srun accelerate-launch.sh --multi_gpu --num_processes=$NUM_PROCESSES --num_machines=$SLURM_NNODES \
-     --dynamo_backend=no --mixed_precision=bf16 --num_cpu_threads_per_process=$NUM_WORKERS \
+     --dynamo_backend=no --mixed_precision=no --num_cpu_threads_per_process=$NUM_WORKERS \
             $DIST_OPTS $SCRIPT $SCRIPT_OPTS
 #)
 
