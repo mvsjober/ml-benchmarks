@@ -23,8 +23,10 @@ date
 
 if which nvidia-smi > /dev/null 2>&1; then
     export NUM_GPUS=$(nvidia-smi -L | wc -l)
-else
+elif which rocm-smi > /dev/null 2>&1; then
     export NUM_GPUS=$(rocm-smi -i | grep "GPU ID" | wc -l)
+else
+    export NUM_GPUS=0
 fi
 echo "NUM_GPUS=$NUM_GPUS"
 
