@@ -28,16 +28,15 @@ else
 fi
 echo "NUM_GPUS=$NUM_GPUS"
 
-PUHTI_GPUENERGY=/appl/soft/ai/bin/gpu-energy
-if [ -x $PUHTI_GPUENERGY ]; then
-    $PUHTI_GPUENERGY &
-    monitor_pid=$!
+LUMI_GPUENERGY=/appl/local/csc/soft/ai/bin/gpu-energy
+if [ -x $LUMI_GPUENERGY ]; then
+  srun --mpi=cray_shasta --ntasks=$SLURM_NNODES --ntasks-per-node=1 $LUMI_GPUENERGY --save
 fi
 
 source $SCRIPT $*
 
-if [ ! -z $monitor_pid ]; then
-    kill -SIGUSR1 $monitor_pid
+if [ -x $LUMI_GPUENERGY ]; then
+  srun --mpi=cray_shasta --ntasks=$SLURM_NNODES --ntasks-per-node=1 $LUMI_GPUENERGY --diff
 fi
 
 (set -x
