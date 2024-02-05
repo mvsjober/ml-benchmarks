@@ -28,7 +28,16 @@ else
 fi
 echo "NUM_GPUS=$NUM_GPUS"
 
+LUMI_GPUENERGY=/appl/local/csc/soft/ai/bin/gpu-energy
+if [ -x $LUMI_GPUENERGY ]; then
+  srun --mpi=cray_shasta --ntasks=$SLURM_NNODES --ntasks-per-node=1 $LUMI_GPUENERGY --save
+fi
+
 source $SCRIPT $*
+
+if [ -x $LUMI_GPUENERGY ]; then
+  srun --mpi=cray_shasta --ntasks=$SLURM_NNODES --ntasks-per-node=1 $LUMI_GPUENERGY --diff
+fi
 
 (set -x
 date
