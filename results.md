@@ -165,3 +165,23 @@
 | run_clm, synthetic | PyTorch 2.1.1+rocm5.6 | lumi    | 2    | 2023-11-17 | 41.527 |
 | run_clm, synthetic | PyTorch 2.1.1+rocm5.6 | lumi    | 8    | 2023-11-17 | 116.601 |
 | run_clm, synthetic | PyTorch 2.1.1+rocm5.6 | lumi    | 16    | 2023-11-17 | 162.697 |
+| DDP, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 1    | 2024-02-29 | 530.74 |
+| DDP, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 2    | 2024-02-29 | 1048.76 |
+| DDP, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 8    | 2024-02-29 | 4000.25 |
+| DDP, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 16    | 2024-02-29 | 7685.47 |
+| DDP, synthetic, fp16 | PyTorch 2.2.1+rocm5.6 | lumi    | 1    | 2024-02-29 | 931.08 |
+| DDP, synthetic, fp16 | PyTorch 2.2.1+rocm5.6 | lumi    | 2    | 2024-02-29 | 1725.14 |
+| DDP, synthetic, fp16 | PyTorch 2.2.1+rocm5.6 | lumi    | 8    | 2024-02-29 | 6419.29 |
+| DDP, synthetic, fp16 | PyTorch 2.2.1+rocm5.6 | lumi    | 16    | 2024-02-29 | 12042.89 |
+| DDP Lightning, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 1    | 2024-02-29 | 523.43 |
+| DDP Lightning, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 8    | 2024-02-29 | 3790.99 |
+| DDP Lightning, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 16    | 2024-02-29 | 7191.76 |
+| DDP, Imagenet data | PyTorch 2.2.1+rocm5.6 | lumi    | 1    | 2024-02-29 | 537.37 |
+| DDP, Imagenet data | PyTorch 2.2.1+rocm5.6 | lumi    | 8    | 2024-02-29 | 3979.44 |
+| DDP, Imagenet data | PyTorch 2.2.1+rocm5.6 | lumi    | 16    | 2024-02-29 | 7704.10 |
+| DeepSpeed, synthetic data | PyTorch 2.2.1+rocm5.6 | lumi    | 8    | 2024-02-29 | 3838.67 |
+| DeepSpeed, synthetic data | PyTorch 2.2.1+rocm5.6 | lumi    | 16    | 2024-02-29 | 7651.14 |
+| run_clm, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 1    | 2024-02-29 | 21.77 |
+| run_clm, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 2    | 2024-02-29 | 42.096 |
+| run_clm, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 8    | 2024-02-29 | 115.339 |
+| run_clm, synthetic | PyTorch 2.2.1+rocm5.6 | lumi    | 16    | 2024-02-29 | 165.801 |
