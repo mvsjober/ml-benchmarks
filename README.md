@@ -29,37 +29,16 @@ tasks).
 
 ## Available benchmarks
 
-| Benchmark                 | Script name                    | Data               | Multi-node |
-| ---------                 | -----------                    | ----               | ---        |
-| PyTorch synthetic         | `pytorch-synthetic.sh`         | synthetic          | Horovod    |
-| PyTorch DDP               | `pytorch-ddp.sh`               | synthetic/ImageNet | DDP        |
-| PyTorch Horovod           | `pytorch-horovod.sh`           | synthetic/ImageNet | Horovod    |
-| PyTorch DDP Lightning     | `pytorch-ddp-lightning.sh`     | synthetic/ImageNet | DDP        |
-| PyTorch Horovod Lightning | `pytorch-horovod-lightning.sh` | synthetic/ImageNet | Horovod    |
-| TensorFlow CNN            | `tensorflow-cnn.sh`            | synthetic/ImageNet | -          |
+| Benchmark             | Script name                | Data               |
+|-----------------------|----------------------------|--------------------|
+| PyTorch synthetic     | `pytorch-synthetic.sh`     | synthetic          |
+| PyTorch DDP           | `pytorch-ddp.sh`           | synthetic/ImageNet |
+| PyTorch DDP Lightning | `pytorch-ddp-lightning.sh` | synthetic/ImageNet |
+| PyTorch DeepSpeed     | `pytorch-deepspeed.sh`     | synthetic/ImageNet |
+| run_clm               | `pytorch-clm.sh`           | WikiText-2         |
+| TensorFlow CNN        | `tensorflow-cnn.sh`        | synthetic/ImageNet |
 
 The different benchmarks are described below in more detail. 
-
-
-### run_clm
-
-Fine-tuning GPT-like model on WikiText-2, directly from [Huggingface
-Language modeling
-examples](https://github.com/huggingface/transformers/tree/main/examples/pytorch/language-modeling).
-
-![PyTorch run_clm results chart](pytorch_run_clm_synthetic.png)
-
-Run example with a full node GPUs (in this case 8 GPUs on LUMI):
-
-```bash
-sbatch slurm/lumi-gpu8.sh pytorch-clm.sh
-```
-
-Run example with two full nodes GPUs (in this case 16 GPUs on LUMI):
-
-```bash
-sbatch slurm/lumi-gpu16.sh pytorch-clm.sh
-```
 
 
 ### PyTorch synthetic
@@ -86,40 +65,36 @@ the Python script:
 sbatch slurm/mahti-gpu4.sh pytorch-synthetic.sh --batch-size=32
 ```
 
-Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI:
+Using 8 GPUs (i.e., 2 nodes) with Horovod and MPI (*not supported in newer PyTorch installations*):
 
 ```bash
 sbatch slurm/mahti-gpu8-mpi.sh pytorch-synthetic.sh
 ```
 
-## PyTorch DDP and PyTorch Horovod
+## PyTorch DDP
 
-PyTorch benchmark using Distributed Data Parallel or Horovod for handling
+PyTorch benchmark using Distributed Data Parallel for handling
 multiple GPUs.
 
 ![PyTorch DDP results chart](pytorch_ddp_synthetic.png)
 
-Run example with 4 GPUs on Puhti using synthetic data and DDP:
+Run example with 4 GPUs on Puhti using synthetic data:
 
 ```bash
 sbatch slurm/puhti-gpu4.sh pytorch-ddp.sh
 ```
 
-Run example with 8 GPUs (on 2 nodes) using real ImageNet data and DDP:
+Run example with 8 GPUs (on 2 nodes) using real ImageNet data:
 
 ```bash
 sbatch slurm/puhti-gpu8.sh pytorch-ddp.sh --data
 ```
 
-Run example with 8 GPUs (2 nodes) using Horovod:
+Run example with 8 GPUs (2 nodes) with fp16:
 
 ```bash
-sbatch slurm/puhti-gpu8-mpi.sh pytorch-horovod.sh
+sbatch slurm/puhti-gpu8.sh pytorch-ddp.sh --fp16
 ```
-
-**NOTE:** Using DataLoader with Horovod still has some problems on Puhti when
-using multiple processes. It seems to freeze at random times. This is still
-being investigated
 
 
 ## PyTorch DDP with Lightning
@@ -130,7 +105,7 @@ torchvision.models][2].
 
 ![PyTorch DDP Lightning results chart](pytorch_ddp_lightning_synthetic.png)
 
-DDP (as of PyTorch 1.13) needs to be run as single task per GPU:
+DDP on Lightning (as of PyTorch 1.13) needs to be run as single task per GPU:
 
 ```bash
 sbatch slurm/puhti-gpu4-mpi.sh pytorch-ddp-lightning.sh  # single node
@@ -145,17 +120,39 @@ operations.
 
 ![PyTorch deepspeed results chart](pytorch_deepspeed_synthetic.png)
 
-DeepSpeed example, 4 GPUs with synthetic data:
+DeepSpeed example, 4 GPUs with synthetic data (note: one node = one task):
 
 ```bash
 sbatch slurm/puhti-gpu4.sh pytorch-deepspeed.sh
 ```
 
-8 GPUs, 2 nodes with ImageNet data:
+8 GPUs, 2 nodes with ImageNet data (note one GPU = one task):
 
 ```bash
 sbatch slurm/puhti-gpu8-mpi.sh pytorch-deepspeed.sh --data
 ```
+
+### run_clm
+
+Fine-tuning GPT-like model on WikiText-2, directly from [Huggingface
+Language modeling
+examples](https://github.com/huggingface/transformers/tree/main/examples/pytorch/language-modeling).
+
+![PyTorch run_clm results chart](pytorch_run_clm_synthetic.png)
+
+Run example with a full node GPUs (in this case 8 GPUs on LUMI):
+
+```bash
+sbatch slurm/lumi-gpu8.sh pytorch-clm.sh
+```
+
+Run example with two full nodes GPUs (in this case 16 GPUs on LUMI):
+
+```bash
+sbatch slurm/lumi-gpu16.sh pytorch-clm.sh
+```
+
+
 
 ## TensorFlow CNN
 
