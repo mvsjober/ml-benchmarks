@@ -225,3 +225,23 @@
 | run_clm, synthetic | PyTorch 2.2.1+cu121 | mahti    | 2    | 2024-05-08 | 56.062 |
 | run_clm, synthetic | PyTorch 2.2.1+cu121 | mahti    | 4    | 2024-05-08 | 98.395 |
 | run_clm, synthetic | PyTorch 2.2.1+cu121 | mahti    | 8    | 2024-05-08 | 163.372 |
+| DDP, synthetic | PyTorch 2.3.1+cu121 | puhti    | 1    | 2024-06-12 | 322.46 |
+| DDP, synthetic | PyTorch 2.3.1+cu121 | puhti    | 2    | 2024-06-12 | 619.32 |
+| DDP, synthetic | PyTorch 2.3.1+cu121 | puhti    | 4    | 2024-06-12 | 1232.84 |
+| DDP, synthetic | PyTorch 2.3.1+cu121 | puhti    | 8    | 2024-06-12 | 2451.30 |
+| DDP, synthetic, fp16 | PyTorch 2.3.1+cu121 | puhti    | 1    | 2024-06-12 | 657.66 |
+| DDP, synthetic, fp16 | PyTorch 2.3.1+cu121 | puhti    | 2    | 2024-06-12 | 1188.45 |
+| DDP, synthetic, fp16 | PyTorch 2.3.1+cu121 | puhti    | 4    | 2024-06-12 | 2390.30 |
+| DDP, synthetic, fp16 | PyTorch 2.3.1+cu121 | puhti    | 8    | 2024-06-12 | 4640.83 |
+| DDP Lightning, synthetic | PyTorch 2.3.1+cu121 | puhti    | 1    | 2024-06-12 | 319.27 |
+| DDP Lightning, synthetic | PyTorch 2.3.1+cu121 | puhti    | 4    | 2024-06-12 | 1227.18 |
+| DDP Lightning, synthetic | PyTorch 2.3.1+cu121 | puhti    | 8    | 2024-06-12 | 2445.87 |
+| DDP, Imagenet data | PyTorch 2.3.1+cu121 | puhti    | 1    | 2024-06-12 | 323.20 |
+| DDP, Imagenet data | PyTorch 2.3.1+cu121 | puhti    | 4    | 2024-06-12 | 1232.57 |
+| DDP, Imagenet data | PyTorch 2.3.1+cu121 | puhti    | 8    | 2024-06-12 | 2449.88 |
+| DeepSpeed, synthetic data | PyTorch 2.3.1+cu121 | puhti    | 4    | 2024-06-12 | 1246.99 |
+| DeepSpeed, synthetic data | PyTorch 2.3.1+cu121 | puhti    | 8    | 2024-06-12 | 2409.71 |
+| run_clm, synthetic | PyTorch 2.3.1+cu121 | puhti    | 1    | 2024-06-12 | 16.202 |
+| run_clm, synthetic | PyTorch 2.3.1+cu121 | puhti    | 2    | 2024-06-12 | 32.019 |
+| run_clm, synthetic | PyTorch 2.3.1+cu121 | puhti    | 4    | 2024-06-12 | 59.882 |
+| run_clm, synthetic | PyTorch 2.3.1+cu121 | puhti    | 8    | 2024-06-12 | 104.39 |
