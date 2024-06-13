@@ -4,6 +4,12 @@ export NCCL_DEBUG=INFO
 SCRIPT="benchmarks/pytorch_visionmodel_deepspeed.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
+if which deepspeed > /dev/null 2>&1 ; then
+    DEEPSPEED_BIN=deepspeed
+else
+    DEEPSPEED_BIN="singularity_wrapper exec deepspeed"
+fi
+
 SCRIPT_OPTS="--deepspeed --deepspeed_config benchmarks/ds_config_benchmark.json"
 
 if [ "$1" == "--data" ]; then
@@ -32,7 +38,7 @@ else
         exit 1
     fi
     (set -x
-     srun singularity_wrapper exec deepspeed $SCRIPT $SCRIPT_OPTS $*
+     $DEEPSPEED_BIN $SCRIPT $SCRIPT_OPTS $*
     )
 fi
 
