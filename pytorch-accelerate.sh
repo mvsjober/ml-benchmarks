@@ -4,9 +4,7 @@ export NCCL_DEBUG=INFO
 SCRIPT="benchmarks/pytorch_visionmodel_accelerate.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 
-# DIST_OPTS="--standalone --master_port 0"
-
-export NUM_WORKERS=$(( SLURM_CPUS_PER_TASK / NUM_GPUS ))
+NUM_WORKERS=$(( SLURM_CPUS_PER_TASK / NUM_GPUS ))
 
 SCRIPT_OPTS="--warmup-steps 10 --workers=$NUM_WORKERS"
 
@@ -32,26 +30,42 @@ if [ "$1" == "--data" ]; then
      srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 \
           tar xf $IMAGENET_DATA -C $LOCAL_SCRATCH
     )
-    SCRIPT_OPTS="--datadir ${LOCAL_SCRATCH}/ilsvrc2012-torch $SCRIPT_OPTS"
+    TMPDATADIR="${LOCAL_SCRATCH}/ilsvrc2012-torch"
+    SCRIPT_OPTS="--datadir $TMPDATADIR $SCRIPT_OPTS"
 fi
 
 
 if [ "$SLURM_NNODES" -gt 1 ]; then
-    export RDZV_HOST=$(hostname)
-    export RDZV_PORT=29400
-    MASTER_IP=$(ip -4 -brief addr show | grep -E 'hsn0|ib0' | grep -oP '([\d]+.[\d.]+)')
-    #DIST_OPTS="--rdzv_id=$SLURM_JOB_ID --rdzv_backend=c10d --rdzv_endpoint=$RDZV_HOST:$RDZV_PORT"
-    DIST_OPTS="--main_process_ip=$MASTER_IP --main_process_port=$RDZV_PORT --rdzv_backend=c10d"
+    export MASTER_PORT=29400
+    #MASTER_IP=$(ip -4 -brief addr show | grep -E 'hsn0|ib0' | grep -oP '([\d]+.[\d.]+)')
+    MASTER_IP=$(hostname -i)
+    DIST_OPTS="--main_process_ip=$MASTER_IP --main_process_port=$MASTER_PORT"
 fi
 
-# (set -x
-# srun python3 -m torch.distributed.run $DIST_OPTS --nnodes=$SLURM_NNODES --nproc_per_node=$NUM_GPUS $SCRIPT $SCRIPT_OPTS $*acc
 
 NUM_PROCESSES=$(( $NUM_GPUS * $SLURM_NNODES ))
 
-srun accelerate-launch.sh --multi_gpu --num_processes=$NUM_PROCESSES --num_machines=$SLURM_NNODES \
-     --dynamo_backend=no --mixed_precision=no --num_cpu_threads_per_process=$NUM_WORKERS \
-            $DIST_OPTS $SCRIPT $SCRIPT_OPTS
-#)
+export ACCELERATE_CPU_AFFINITY=1
 
-#rm -rf $LOCAL_SCRATCH/ilsvrc2012-torch
+# Note: --machine_rank must be evaluated on each node, hence the LAUNCH_CMD setup
+export LAUNCH_CMD="
+       accelerate launch \
+              --multi_gpu \
+              --num_processes=$NUM_PROCESSES \
+              --num_machines=$SLURM_NNODES \
+              --machine_rank=\$SLURM_NODEID \
+              --mixed_precision=no \
+              --num_cpu_threads_per_process=$NUM_WORKERS \
+              --dynamo_backend=no \
+              $DIST_OPTS \
+           $SCRIPT $SCRIPT_OPTS"
+
+(set -x
+ srun bash -c "$LAUNCH_CMD"
+)
+
+if [ -d "$TMPDATADIR" ]; then
+    (set -x
+     rm -rf $TMPDATADIR
+    )
+fi
