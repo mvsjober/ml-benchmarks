@@ -11,6 +11,7 @@ if [ -n "$SIF" ]; then
 fi
 
 echo "PYTHON3=$PYTHON3"
+echo "NCCL_NET_GDR_LEVEL=$NCCL_NET_GDR_LEVEL"
 
 SCRIPT="benchmarks/pytorch_visionmodel_ddp.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar

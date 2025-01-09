@@ -1,6 +1,7 @@
 # Based on multiprocessing example from
 # https://yangkky.github.io/2019/07/08/distributed-pytorch-tutorial.html
 
+import multiprocessing
 from datetime import datetime
 import argparse
 import os
@@ -91,7 +92,7 @@ def train(args):
                               shuffle=False, num_workers=args.workers,
                               pin_memory=True, sampler=train_sampler)
 
-    scaler = torch.cuda.amp.GradScaler(enabled=args.fp16)
+    scaler = torch.amp.GradScaler('cuda', enabled=args.fp16)
     if verbose and args.fp16:
         print(f"Using fp16 (PyTorch automatic mixed precision)")
 
@@ -144,7 +145,7 @@ def train(args):
             images = images.cuda(non_blocking=True)
             labels = labels.cuda(non_blocking=True)
 
-            with torch.cuda.amp.autocast(enabled=args.fp16):
+            with torch.amp.autocast('cuda', enabled=args.fp16):
                 outputs = model(images)
                 loss = criterion(outputs, labels)
 
@@ -198,6 +199,8 @@ def train(args):
             if args.steps is not None and tot_steps >= args.steps:
                 break
 
+    dur = datetime.now() - avg_start
+
     if args.profiler:
         if args.profiler_format == 'json' and verbose:
             trace_datetime = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
@@ -211,13 +214,14 @@ def train(args):
         if avg_start is None:
             print("WARNING: stopped before warmup steps done, not printing stats.")
         else:
-            dur = datetime.now() - avg_start
             print(f"Training completed in: {dur}")
             print(f"Images/sec: {avg_images*world_size/dur.total_seconds():.2f} "
                   f"(average, skipping {args.warmup_steps} warmup steps)")
 
 
 def main():
+    multiprocessing.set_start_method('spawn')
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--epochs', default=1, type=int, metavar='N',
                         help='number of total epochs to run')
