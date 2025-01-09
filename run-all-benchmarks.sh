@@ -130,15 +130,15 @@ JID_DEEPSPEED_TWONODES=$JID
 
 
 #### PyTorch Horovod
-if [ "$CLUSTER" != "lumi" ]; then
-    # PyTorch Horovod multi-node, 8 GPU with MPI
-    do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh
-    JID_HVD_TWONODES=$JID
+# if [ "$CLUSTER" != "lumi" ]; then
+#     # PyTorch Horovod multi-node, 8 GPU with MPI
+#     do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh
+#     JID_HVD_TWONODES=$JID
 
-    # PyTorch Horovod multi-node, 8 GPU with MPI
-    do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh --data
-    JID_HVD_DATA_TWONODES=$JID
-fi
+#     # PyTorch Horovod multi-node, 8 GPU with MPI
+#     do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}-mpi.sh pytorch-horovod.sh --data
+#     JID_HVD_DATA_TWONODES=$JID
+# fi
 
 
 #### PyTorch run_clm.py
@@ -204,8 +204,8 @@ print_result "DDP, Imagenet data" ${TWONODES} $JID_DDP_DATA_TWONODES
 print_result "DeepSpeed, synthetic data" $FULLNODE $JID_DEEPSPEED_FULLNODE
 print_result "DeepSpeed, synthetic data" ${TWONODES} $JID_DEEPSPEED_TWONODES
 
-print_result "Horovod, synthetic" ${TWONODES} $JID_HVD_TWONODES
-print_result "Horovod, Imagenet data" ${TWONODES} $JID_HVD_DATA_TWONODES
+# print_result "Horovod, synthetic" ${TWONODES} $JID_HVD_TWONODES
+# print_result "Horovod, Imagenet data" ${TWONODES} $JID_HVD_DATA_TWONODES
 
 print_result "run_clm, synthetic" 1 $JID_CLM_GPU1
 print_result "run_clm, synthetic" 2 $JID_CLM_GPU2
