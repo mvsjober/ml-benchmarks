@@ -8,6 +8,7 @@ if [ -n "$SIF" ]; then
 fi
 
 echo "PYTHON3=$PYTHON3"
+
 env | grep NCCL
 env | grep MIOPEN
 
