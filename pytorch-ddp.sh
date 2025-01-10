@@ -5,13 +5,11 @@ PYTHON3="python3"
 
 if [ -n "$SIF" ]; then
     PYTHON3="singularity exec $SIF python3"
-    #c=fe
-    #MYMASKS="0x${c}000000000000,0x${c}00000000000000,0x${c}0000,0x${c}000000,0x${c},0x${c}00,0x${c}00000000,0x${c}0000000000"
-    #SRUN_OPTIONS="--cpu-bind=mask_cpu:$MYMASKS"
 fi
 
 echo "PYTHON3=$PYTHON3"
-echo "NCCL_NET_GDR_LEVEL=$NCCL_NET_GDR_LEVEL"
+env | grep NCCL
+env | grep MIOPEN
 
 SCRIPT="benchmarks/pytorch_visionmodel_ddp.py"
 IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
@@ -22,6 +20,12 @@ NUM_WORKERS=$(( SLURM_CPUS_PER_TASK / NUM_GPUS ))
 #NUM_WORKERS=0
 
 SCRIPT_OPTS="--warmup-steps 10 --workers=$NUM_WORKERS"
+
+# Bind CPUs if we are on LUMI and are using full nodes
+if [ "$SLURM_CLUSTER_NAME" == "lumi" -a "$NUM_GPUS" -eq 8  ]; then
+    echo "LUMI detected, setting CPU bindings"
+    SCRIPT_OPTS="$SCRIPT_OPTS --set-cpu-binds"
+fi
 
 if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
     echo "ERROR: this script needs to be run as one task per node."
