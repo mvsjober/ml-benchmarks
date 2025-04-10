@@ -5,12 +5,14 @@ SCRIPT="benchmarks/run_clm.py"
 
 # Puhti and Mahti
 HF_MODEL=EleutherAI/gpt-neo-125M
+# HF_MODEL=EleutherAI/gpt-neo-1.3B
 export HF_HOME=/scratch/project_2001659/mvsjober/hf-home
 export TORCH_HOME=/scratch/project_2001659/mvsjober/torch-cache
 
+export TOKENIZERS_PARALLELISM=false
+
 # LUMI
 if [ ! -d "/scratch/project_2001659/mvsjober" ]; then
-    # HF_MODEL=EleutherAI/gpt-neo-1.3B
     HF_HOME=/scratch/project_462000007/mvsjober/hf-home
     TORCH_HOME=/scratch/project_462000007/mvsjober/torch-cache
 fi
