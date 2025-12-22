@@ -7,6 +7,8 @@ module list
 export NCCL_DEBUG=INFO
 #export NCCL_DEBUG_SUBSYS=ALL
 
+export WANDB_DISABLED=true
+
 if which nvidia-smi > /dev/null 2>&1; then
     export SMI_CMD=nvidia-smi
 else
@@ -14,10 +16,18 @@ else
 fi
 
 
+export PYTHON3="python3"
+if [ -n "$SIF" ]; then
+    PYTHON3="singularity exec --nv $SIF python3"
+    if [ -x "$(command -v csc-common-bind)" ]; then
+        PYTHON3="singularity exec --nv --bind=$(csc-common-bind) $SIF python3"
+    fi
+fi
+echo "Launching python3 as \"$PYTHON3\""
+
 (set -x
 srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 hostname
 srun --ntasks=$SLURM_NNODES --ntasks-per-node=1 $SMI_CMD
-which python3
 date
 )
 

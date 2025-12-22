@@ -1,14 +1,6 @@
 export OMP_NUM_THREADS=1
 export NCCL_DEBUG=INFO
 
-PYTHON3="python3"
-
-if [ -n "$SIF" ]; then
-    PYTHON3="singularity exec $SIF python3"
-fi
-
-echo "PYTHON3=$PYTHON3"
-
 env | grep NCCL
 env | grep MIOPEN
 

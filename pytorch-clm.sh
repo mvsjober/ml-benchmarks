@@ -44,7 +44,7 @@ if [ "$SLURM_NNODES" -gt 1 ]; then
 fi
 
 (set -x
- srun python3 -m torch.distributed.run $DIST_OPTS \
+ srun $PYTHON3 -m torch.distributed.run $DIST_OPTS \
       --nnodes=$SLURM_NNODES --nproc_per_node=$NUM_GPUS $SCRIPT \
       --model_name_or_path $HF_MODEL \
       --dataset_name wikitext --dataset_config_name wikitext-2-raw-v1 \

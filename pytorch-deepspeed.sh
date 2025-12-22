@@ -29,7 +29,7 @@ if [ "$SLURM_NNODES" -gt 1 ]; then
     fi
     
     (set -x
-     srun python3 $SCRIPT $SCRIPT_OPTS $*
+     srun $PYTHON3 $SCRIPT $SCRIPT_OPTS $*
     )
 else
     if [ $SLURM_NTASKS -ne 1 ]; then
