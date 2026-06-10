@@ -10,7 +10,9 @@ IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
 DIST_OPTS="--standalone --master_port 0"
 
 NUM_WORKERS=$(( SLURM_CPUS_PER_TASK / NUM_GPUS ))
-#NUM_WORKERS=0
+if (( NUM_WORKERS > 10 )); then
+	NUM_WORKERS=10
+fi
 
 SCRIPT_OPTS="--warmup-steps 10 --workers=$NUM_WORKERS"
 

@@ -23,11 +23,15 @@ if [ "$SLURM_NTASKS" -ne "$SLURM_NNODES" ]; then
     exit 1
 fi
 
-if [ -z "$LOCAL_SCRATCH" ]; then
-    OUTPUT_DIR="/flash/project_462000007/mvsjober/run-clm/$SLURM_JOB_ID"
-else
-    OUTPUT_DIR="$LOCAL_SCRATCH/run-clm/$SLURM_JOB_ID"
-fi
+OUTPUT_DIR="${TMPDIR}/run-clm/${SLURM_JOB_ID}"
+
+# if [ -z "$LOCAL_SCRATCH" ]; then
+#     OUTPUT_DIR="/flash/project_462000007/mvsjober/run-clm/$SLURM_JOB_ID"
+# else
+#     OUTPUT_DIR="$LOCAL_SCRATCH/run-clm/$SLURM_JOB_ID"
+# fi
+
+echo "OUTPUT_DIR=$OUTPUT_DIR"
 
 SCRIPT_OPTS="--gradient_accumulation_steps $(( 64 / $NUM_GPUS / $SLURM_NNODES ))"
 
@@ -49,7 +53,7 @@ fi
       --model_name_or_path $HF_MODEL \
       --dataset_name wikitext --dataset_config_name wikitext-2-raw-v1 \
       --per_device_train_batch_size 2 --do_train \
-      --output_dir $OUTPUT_DIR --overwrite_output_dir \
+      --output_dir $OUTPUT_DIR \
       --fp16 \
       --num_train_epochs 1 --dataloader_num_workers $NUM_WORKERS \
       $SCRIPT_OPTS $*

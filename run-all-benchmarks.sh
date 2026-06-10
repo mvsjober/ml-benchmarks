@@ -15,6 +15,12 @@ elif [[ $HOSTNAME == puhti-login* ]]; then
     GPUMEDIUM="gpu"
     FULLNODE="4"
     TWONODES="8"
+elif [[ $HOSTNAME == roihu* ]]; then
+    CLUSTER="roihu"
+    GPUSMALL="gpumedium"
+    GPUMEDIUM="gpumedium"
+    FULLNODE="4"
+    TWONODES="8"
 elif [[ $HOSTNAME == uan* ]]; then
     CLUSTER="lumi"
     GPUSMALL="small-g"
@@ -69,7 +75,7 @@ do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.
 JID_DDP_TWONODES=$JID
 
 
-#### PyTorch DDP - syntethic data fp16
+#### PyTorch DDP - synthetic data fp16
 
 # PyTorch DDP, single GPU
 do_sbatch --partition=$GPUSMALL slurm/${CLUSTER}-gpu1.sh pytorch-ddp.sh --steps=1000 --fp16
@@ -88,7 +94,7 @@ do_sbatch --partition=$GPUMEDIUM slurm/${CLUSTER}-gpu${TWONODES}.sh pytorch-ddp.
 JID_DDP_FP16_TWONODES=$JID
 
 
-#### PyTorch DDP Lightning - syntethic data
+#### PyTorch DDP Lightning - synthetic data
 
 # PyTorch DDP Lightning, single GPU
 do_sbatch --partition=$GPUSMALL -t 30 slurm/${CLUSTER}-gpu1.sh pytorch-ddp-lightning.sh --steps=1000

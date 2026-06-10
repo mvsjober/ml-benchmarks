@@ -17,11 +17,14 @@ fi
 
 
 export PYTHON3="python3"
-if [ -n "$SIF" ]; then
-    PYTHON3="singularity exec --nv $SIF python3"
+
+if [ "$LMOD_FAMILY_PYTHON_ENV" != "python-pytorch" ]; then
+  if [ -n "$SIF" ]; then
+    PYTHON3="singularity exec --nv --bind=/users,/projappl,/scratch,$TMPDIR $SIF python3"
     if [ -x "$(command -v csc-common-bind)" ]; then
         PYTHON3="singularity exec --nv --bind=$(csc-common-bind) $SIF python3"
     fi
+  fi
 fi
 echo "Launching python3 as \"$PYTHON3\""
 
