@@ -37,6 +37,7 @@ tasks).
 | PyTorch DeepSpeed     | `pytorch-deepspeed.sh`     | synthetic/ImageNet |
 | run_clm               | `pytorch-clm.sh`           | WikiText-2         |
 | TensorFlow CNN        | `tensorflow-cnn.sh`        | synthetic/ImageNet |
+| TensorFlow Dist	| `tensorflow-dist.sh`      | synthetic          |
 
 The different benchmarks are described below in more detail. 
 
@@ -156,8 +157,9 @@ sbatch slurm/lumi-gpu16.sh pytorch-clm.sh
 
 ## TensorFlow CNN
 
-Uses [`tf_cnn_benchmarks.py`][3] directly from TensorFlow's GitHub (as a git
-submodule here).
+Uses [`tf_cnn_benchmarks.py`][3] directly from TensorFlow's GitHub (as
+a git submodule here). **Note:** this benchmark has been deprecated
+and doesn't work with newer versions of TensorFlow.
 
 Run example:
 
@@ -180,6 +182,20 @@ sbatch slurm/mahti-gpu1.sh tensorflow-cnn.sh --data
 Horovod with real data:
 ```bash
 sbatch slurm/mahti-gpu8-mpi.sh tensorflow-cnn.sh --data
+```
+
+## TensorFlow Dist
+
+An AI generated simple conversion of the PyTorch DDP script. It supports only synthetic data, and currently supports only single node jobs. Created by Marlon Tobaben using Claude Opus 4.8. The code was briefly reviewed and the version seems to be slower than PyTorch.
+
+Run examples:
+
+```bash
+sbatch slurm/roihu-gpu1.sh tensorflow-dist.sh
+```
+
+```bash
+sbatch slurm/roihu-gpu4.sh tensorflow-dist.sh
 ```
 
 
