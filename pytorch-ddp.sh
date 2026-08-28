@@ -5,7 +5,7 @@ env | grep NCCL
 env | grep MIOPEN
 
 SCRIPT="benchmarks/pytorch_visionmodel_ddp.py"
-IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
+IMAGENET_DATA=/scratch/dac/mvsjober/ilsvrc2012-torch-resized-new.tar
 
 DIST_OPTS="--standalone --master_port 0"
 

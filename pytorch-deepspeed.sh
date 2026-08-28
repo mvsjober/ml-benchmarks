@@ -2,7 +2,7 @@ export OMP_NUM_THREADS=1
 export NCCL_DEBUG=INFO
 
 SCRIPT="benchmarks/pytorch_visionmodel_deepspeed.py"
-IMAGENET_DATA=/scratch/dac/data/ilsvrc2012-torch-resized-new.tar
+IMAGENET_DATA=/scratch/dac/mvsjober/ilsvrc2012-torch-resized-new.tar
 
 if which deepspeed > /dev/null 2>&1 ; then
     DEEPSPEED_BIN=deepspeed
