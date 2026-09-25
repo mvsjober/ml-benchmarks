@@ -285,3 +285,23 @@
 | run_clm, synthetic | PyTorch 2.9.1+cu129 | mahti    | 2    | 2026-01-09 | 23.406 |
 | run_clm, synthetic | PyTorch 2.9.1+cu129 | mahti    | 4    | 2026-01-09 | 41.619 |
 | run_clm, synthetic | PyTorch 2.9.1+cu129 | mahti    | 8    | 2026-01-09 | 66.933 |
+| DDP, synthetic | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 1369.27 |
+| DDP, synthetic | PyTorch 2.13.0+cu130 | roihu    | 2    | 2026-08-28 | 1962.15 |
+| DDP, synthetic | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 4963.38 |
+| DDP, synthetic | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 9640.96 |
+| DDP, synthetic, fp16 | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 1213.38 |
+| DDP, synthetic, fp16 | PyTorch 2.13.0+cu130 | roihu    | 2    | 2026-08-28 | 1763.40 |
+| DDP, synthetic, fp16 | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 4496.38 |
+| DDP, synthetic, fp16 | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 9008.17 |
+| DDP Lightning, synthetic | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 1205.18 |
+| DDP Lightning, synthetic | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 4385.09 |
+| DDP Lightning, synthetic | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 8525.16 |
+| DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 1374.57 |
+| DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 4924.27 |
+| DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | |
+| DeepSpeed, synthetic data | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | |
+| DeepSpeed, synthetic data | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 8646.88 |
+| run_clm, synthetic | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 26.46 |
+| run_clm, synthetic | PyTorch 2.13.0+cu130 | roihu    | 2    | 2026-08-28 | 49.147 |
+| run_clm, synthetic | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 88.503 |
+| run_clm, synthetic | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 151.433 |
