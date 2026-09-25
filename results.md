@@ -298,8 +298,8 @@
 | DDP Lightning, synthetic | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 8525.16 |
 | DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 1374.57 |
 | DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 4924.27 |
-| DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | |
-| DeepSpeed, synthetic data | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | |
+| DDP, Imagenet data | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 9629.81 |
+| DeepSpeed, synthetic data | PyTorch 2.13.0+cu130 | roihu    | 4    | 2026-08-28 | 4385.02 |
 | DeepSpeed, synthetic data | PyTorch 2.13.0+cu130 | roihu    | 8    | 2026-08-28 | 8646.88 |
 | run_clm, synthetic | PyTorch 2.13.0+cu130 | roihu    | 1    | 2026-08-28 | 26.46 |
 | run_clm, synthetic | PyTorch 2.13.0+cu130 | roihu    | 2    | 2026-08-28 | 49.147 |

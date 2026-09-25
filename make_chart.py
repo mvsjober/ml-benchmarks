@@ -2,14 +2,12 @@
 
 import argparse
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 import sys
 
 from datetime import date
 from matplotlib.lines import Line2D
-from pprint import pprint
 
 sns.set(palette="Set2", context="poster")
 
@@ -19,7 +17,7 @@ def split_line(line):
 
 
 def parse_markdown_results(filename):
-    l = []
+    ll = []
     with open(filename) as fp:
         col_titles = [x.lower().replace('/','_') for x in split_line(fp.readline())]
         cols = len(col_titles)
@@ -40,7 +38,7 @@ def parse_markdown_results(filename):
                 print("WARNING: skipping line with error: ", line,
                       file=sys.stderr)
                 continue
-            
+
             val['gpus'] = int(val['gpus'])
             val['date'] = date.fromisoformat(val['date'])
             val['img_sec'] = float(val['img_sec'])
@@ -49,8 +47,9 @@ def parse_markdown_results(filename):
             if 'fp16' in bm:
                 val['options'] = 'fp16'
                 #val['benchmark'] = bm.replace(', fp16','')
-            l.append(val)
-    return l
+            ll.append(val)
+    return ll
+
 
 def mysort(x):
     parts = x.split()
@@ -63,11 +62,14 @@ def mysort(x):
 def make_plot(df, benchmark, options=False):
     df = df[df.benchmark.str.startswith(benchmark)]
 
-    sp=sns.color_palette()
+    sp = sns.color_palette()
     if options:
-        df["gpus_opts"] = df.apply(lambda row: "{} {}".format(row.gpus, row.options), axis=1)
+        df["gpus_opts"] = df.apply(lambda row: "{} {}".format(row.gpus,
+                                                              row.options),
+                                   axis=1)
         df["gpus_opts"] = df["gpus_opts"].astype(
-            pd.CategoricalDtype(categories=sorted(df["gpus_opts"].unique(), key=mysort)))
+            pd.CategoricalDtype(categories=sorted(df["gpus_opts"].unique(),
+                                                  key = mysort)))
 
         #FIXME: should make options more general...
         palette={h: sp[1] if "fp16" in h else sp[0] for h in df["gpus_opts"].unique()}
@@ -78,12 +80,13 @@ def make_plot(df, benchmark, options=False):
         palette = {h: sp[i] for i, h in enumerate(df["gpus"].unique())}
         height = 8
 
-    sys_names = ['puhti', 'mahti', 'lumi']
-    sys_labels = ['V100', 'A100', 'MI250x (GCD)']
+    sys_names = ['puhti', 'mahti', 'roihu', 'lumi']
+    sys_labels = ['V100', 'A100', 'H100', 'MI250x (GCD)']
 
-    g = sns.catplot(data=df, kind="bar", y="img_sec", x="cluster", hue=hue, 
-                    height=height, aspect=2, dodge=True, legend=False, 
+    g = sns.catplot(data=df, kind="bar", y="img_sec", x="cluster", hue=hue,
+                    height=height, aspect=1.5, dodge=True, legend=False,
                     order=sys_names, palette=palette)
+    g.set(ylim=(0, df["img_sec"].max()*1.2))
     g.set_axis_labels("", "Images per second")
     g.set_xticklabels(sys_labels)
     g.ax.set_title("PyTorch " + df['benchmark'].iloc[0])
@@ -95,28 +98,30 @@ def make_plot(df, benchmark, options=False):
     for c in g.ax.containers:
         label = c.get_label().split()[0]
         labels = [label for v in c]
-        g.ax.bar_label(c, labels=labels, size=16, label_type='center') #, rotation=90)
-        g.ax.bar_label(c, size=16, label_type='edge', fmt='%.0f')
+        g.ax.bar_label(c, labels=labels, size=16, label_type='center')
+        g.ax.bar_label(c, size=16, label_type='edge', fmt=' %.0f', rotation=90)
 
         g.despine(left=True)
         g.tight_layout()
 
-    fn = 'pytorch_'+ benchmark.lower().replace(' ', '_').replace(',','') + '.png'
+    fn = 'pytorch_' + benchmark.lower().replace(' ', '_').replace(',', '') + '.png'
     plt.savefig(fn)
     print("Wrote " + fn + ".")
 
-    
+
 def main(args):
     # Parse markdown file to list of dicts
     results = parse_markdown_results(args.results)
-    #pprint(results)
 
-    # Conver to Pandas dataframe
-    orig_df=pd.DataFrame.from_dict(results)
+    # Convert to Pandas dataframe
+    orig_df = pd.DataFrame.from_dict(results)
     orig_df['date'] = pd.to_datetime(orig_df['date'])
 
-    # Filter by date
-    orig_df = orig_df[orig_df.date >= pd.Timestamp("2023-09-28")]
+    # Select the newest result for each benchmark and setup
+    #orig_df = orig_df[orig_df.date >= pd.Timestamp("2024-02-29")]
+    orig_df = orig_df.sort_values(by=['date'], ascending=False)
+    orig_df = orig_df.drop_duplicates(subset=['benchmark', 'cluster', 'gpus', 'options'],
+                            keep='first')
     print(orig_df)
 
     print("Benchmarks:")
@@ -128,7 +133,6 @@ def main(args):
     make_plot(orig_df, "DDP Lightning, synthetic")
     make_plot(orig_df, "DeepSpeed, synthetic")
     make_plot(orig_df, "run_clm, synthetic")
-    
 
 
 if __name__ == "__main__":
@@ -137,5 +141,5 @@ if __name__ == "__main__":
     parser.add_argument('--results', default='results.md', required=False)
 
     args = parser.parse_args()
-    
+
     main(args)
